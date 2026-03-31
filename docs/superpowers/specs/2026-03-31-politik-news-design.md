@@ -1,4 +1,4 @@
-# PoliticK News — Design Spec
+# Politik News — Design Spec
 
 ## Zusammenfassung
 
@@ -17,7 +17,7 @@ Eine News-Aggregator-Webseite, die automatisch Artikel von konfigurierbaren deut
 ## Projektstruktur
 
 ```
-politick-news/
+politik-news/
 ├── server/
 │   ├── src/
 │   │   ├── routes/           # API-Endpunkte (articles, categories, sources)
@@ -115,7 +115,7 @@ Das Ergebnis wird direkt in der DB gespeichert — kein erneuter KI-Aufruf bei S
 ### Seiten
 
 **Startseite (`/`):**
-- Header: Seitenname "PoliticK News" mit Logo, Suchleiste, Navigationsleiste mit Kategorien (jeweils mit Icon)
+- Header: Seitenname "Politik News" mit Logo, Suchleiste, Navigationsleiste mit Kategorien (jeweils mit Icon)
 - Hero-Bereich: Die 2-3 neuesten Artikel groß dargestellt — Bild, Überschrift, Zusammenfassung, Quell-Badge
 - Darunter: Karten-Grid mit allen weiteren Artikeln chronologisch sortiert
 - "Mehr laden"-Button am Ende für Pagination
