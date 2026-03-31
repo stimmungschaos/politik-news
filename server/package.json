@@ -1,0 +1,18 @@
+{
+  "name": "politik-news-server",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.8.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "node-cron": "^3.0.3",
+    "rss-parser": "^3.13.0",
+    "@anthropic-ai/sdk": "^0.39.0"
+  }
+}
