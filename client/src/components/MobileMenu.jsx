@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, Layers, BarChart3, Bookmark, BookOpen, Home } from "lucide-react";
+import { Menu, X, Layers, BarChart3, Bookmark, BookOpen, Home, Quote, Calendar } from "lucide-react";
 import CATEGORIES from "../lib/categories";
 
 export default function MobileMenu() {
@@ -90,6 +90,26 @@ export default function MobileMenu() {
               >
                 <BookOpen className="w-5 h-5 text-red-400" />
                 Theorie-Ecke
+              </Link>
+
+              <div className="pt-3 pb-1 px-4">
+                <span className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Bewegung</span>
+              </div>
+              <Link
+                to="/zitate"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 text-gray-200 hover:bg-gray-800 rounded-lg transition-colors"
+              >
+                <Quote className="w-5 h-5 text-orange-400" />
+                Zitate
+              </Link>
+              <Link
+                to="/geschichte"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 text-gray-200 hover:bg-gray-800 rounded-lg transition-colors"
+              >
+                <Calendar className="w-5 h-5 text-purple-400" />
+                Geschichte
               </Link>
             </nav>
 

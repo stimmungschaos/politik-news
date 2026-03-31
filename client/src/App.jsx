@@ -8,6 +8,8 @@ import StatsPage from "./pages/StatsPage";
 import StoryClustersPage from "./pages/StoryClustersPage";
 import BookmarksPage from "./pages/BookmarksPage";
 import TheoryPage from "./pages/TheoryPage";
+import QuotesPage from "./pages/QuotesPage";
+import HistoryPage from "./pages/HistoryPage";
 
 export default function App() {
   return (
@@ -22,6 +24,8 @@ export default function App() {
           <Route path="/stories" element={<StoryClustersPage />} />
           <Route path="/lesezeichen" element={<BookmarksPage />} />
           <Route path="/theorie" element={<TheoryPage />} />
+          <Route path="/zitate" element={<QuotesPage />} />
+          <Route path="/geschichte" element={<HistoryPage />} />
         </Routes>
       </main>
       <Footer />

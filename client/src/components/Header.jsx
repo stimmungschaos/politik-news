@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Search, Newspaper, Layers, BarChart3, Bookmark as BookmarkIcon, BookOpen, RefreshCw } from "lucide-react";
+import { Search, Newspaper, Layers, BarChart3, Bookmark as BookmarkIcon, BookOpen, Quote, Calendar, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import CATEGORIES from "../lib/categories";
 import { HEADER_ACCENT_ICONS, HEADER_SLOGAN, FLAGS, POLITICAL_SYMBOLS } from "../lib/icons";
@@ -311,6 +311,20 @@ export default function Header() {
           >
             <BookOpen className="w-3.5 h-3.5 text-red-400" />
             Theorie
+          </Link>
+          <Link
+            to="/zitate"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-300 hover:text-white hover:bg-gray-800 rounded-md transition-colors whitespace-nowrap"
+          >
+            <Quote className="w-3.5 h-3.5 text-orange-400" />
+            Zitate
+          </Link>
+          <Link
+            to="/geschichte"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-300 hover:text-white hover:bg-gray-800 rounded-md transition-colors whitespace-nowrap"
+          >
+            <Calendar className="w-3.5 h-3.5 text-purple-400" />
+            Geschichte
           </Link>
         </nav>
       </div>
