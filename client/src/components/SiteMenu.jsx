@@ -5,6 +5,7 @@ import {
   Calendar, Home, Newspaper,
 } from "lucide-react";
 import CATEGORIES from "../lib/categories";
+import ThemeSwitcher from "./ThemeSwitcher";
 
 export default function SiteMenu() {
   const [open, setOpen] = useState(false);
@@ -87,8 +88,13 @@ export default function SiteMenu() {
           <MenuLink to="/zitate" icon={Quote} color="text-orange-400" label="Zitate" onClick={() => setOpen(false)} />
           <MenuLink to="/geschichte" icon={Calendar} color="text-purple-400" label="Geschichte" onClick={() => setOpen(false)} />
 
+          {/* Theme-Auswahl */}
+          <div className="border-t border-gray-800 mt-1">
+            <ThemeSwitcher />
+          </div>
+
           {/* Footer */}
-          <div className="border-t border-gray-800 mt-1 px-4 py-3 text-center text-[10px] text-gray-600">
+          <div className="border-t border-gray-800 px-4 py-3 text-center text-[10px] text-gray-600">
             ★ Deine linke Nachrichtenseite ★
           </div>
         </div>
