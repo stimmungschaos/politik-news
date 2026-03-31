@@ -67,6 +67,30 @@ function extractImageUrl(item) {
   return null;
 }
 
+/**
+ * Fallback: Holt das og:image von der Artikelseite selbst.
+ * Nur für Quellen die kein Bild im RSS-Feed haben (z.B. Perspektive Online).
+ */
+async function fetchOgImage(url) {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: { "User-Agent": "PolitikNews/1.0" },
+    });
+    clearTimeout(timeout);
+    if (!res.ok) return null;
+    const html = await res.text();
+    const match = html.match(/og:image["']\s+content=["']([^"']+)["']/i)
+      || html.match(/property=["']og:image["'][^>]+content=["']([^"']+)["']/i)
+      || html.match(/content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
+    return match?.[1] || null;
+  } catch {
+    return null;
+  }
+}
+
 function loadSources() {
   const filePath = path.join(__dirname, "..", "config", "sources.json");
   return JSON.parse(readFileSync(filePath, "utf-8"));
@@ -98,13 +122,19 @@ export async function fetchAllFeeds() {
 
         const category = categorizeArticle(item, source.categories);
 
+        let imageUrl = extractImageUrl(item);
+        // Fallback: OG-Image von der Artikelseite holen
+        if (!imageUrl && item.link) {
+          imageUrl = await fetchOgImage(item.link);
+        }
+
         const result = insertArticle({
           title: item.title || "Ohne Titel",
           url: item.link,
           summary,
           source: source.name,
           category,
-          imageUrl: extractImageUrl(item),
+          imageUrl,
           published: item.isoDate || new Date().toISOString(),
           fetchedAt: new Date().toISOString(),
           aiSummary: aiGenerated ? 1 : 0,
