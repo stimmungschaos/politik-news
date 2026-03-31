@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Tagesschau",
+    "url": "https://www.tagesschau.de/xml/rss2/",
+    "categories": ["Innenpolitik", "Außenpolitik"],
+    "logo": "tagesschau"
+  },
+  {
+    "name": "Spiegel",
+    "url": "https://www.spiegel.de/schlagzeilen/index.rss",
+    "categories": ["Innenpolitik", "Gesellschaft"],
+    "logo": "spiegel"
+  },
+  {
+    "name": "Zeit Online",
+    "url": "https://newsfeed.zeit.de/index",
+    "categories": ["Innenpolitik", "Gesellschaft"],
+    "logo": "zeit"
+  }
+]
