@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import articlesRouter from "./routes/articles.js";
 import categoriesRouter from "./routes/categories.js";
 import sourcesRouter from "./routes/sources.js";
+import trendingRouter from "./routes/trending.js";
 import { fetchAllFeeds, syncSourcesToDb } from "./services/feedService.js";
 
 dotenv.config();
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use("/api/articles", articlesRouter);
 app.use("/api/categories", categoriesRouter);
 app.use("/api/sources", sourcesRouter);
+app.use("/api/trending", trendingRouter);
 
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });

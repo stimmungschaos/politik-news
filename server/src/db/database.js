@@ -115,4 +115,155 @@ export function upsertSource(source) {
   `).run(source);
 }
 
+export function getTrendingTopics(hours = 24, limit = 15) {
+  // Get articles from last N hours, extract common words from titles
+  const since = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
+  const articles = db.prepare(
+    "SELECT title FROM articles WHERE published > ? ORDER BY published DESC"
+  ).all(since);
+
+  // Count word frequency (ignore short/common words)
+  const stopWords = new Set([
+    "der", "die", "das", "und", "in", "von", "zu", "für", "mit", "auf",
+    "ist", "im", "den", "des", "ein", "eine", "einer", "einem", "einen",
+    "nicht", "sich", "als", "auch", "es", "an", "nach", "wie", "aus",
+    "bei", "über", "wird", "hat", "zum", "zur", "noch", "vor", "um",
+    "dass", "aber", "oder", "so", "wenn", "kann", "mehr", "nur", "schon",
+    "war", "sind", "werden", "einem", "seine", "seine", "ihre", "will",
+    "neue", "neuer", "neues", "neuem", "neuen", "gibt", "gegen", "haben",
+    "wir", "sie", "ich", "was", "man", "durch", "vom", "bis", "dem",
+    "–", "-", "—", "|", "/", ":", "the", "and", "for"
+  ]);
+
+  const wordCounts = {};
+  for (const { title } of articles) {
+    const words = title.toLowerCase().replace(/[^\wäöüß\s-]/g, "").split(/\s+/);
+    for (const word of words) {
+      if (word.length > 2 && !stopWords.has(word)) {
+        wordCounts[word] = (wordCounts[word] || 0) + 1;
+      }
+    }
+  }
+
+  return Object.entries(wordCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([word, count]) => ({ word, count }));
+}
+
+export function getBreakingNews(limit = 1) {
+  return db.prepare(
+    "SELECT * FROM articles ORDER BY published DESC LIMIT ?"
+  ).all(limit);
+}
+
+export function getStats() {
+  const totalArticles = db.prepare("SELECT COUNT(*) as count FROM articles").get().count;
+  const totalSources = db.prepare("SELECT COUNT(*) as count FROM sources").get().count;
+
+  const bySource = db.prepare(
+    "SELECT source, COUNT(*) as count FROM articles GROUP BY source ORDER BY count DESC"
+  ).all();
+
+  const byCategory = db.prepare(
+    "SELECT category, COUNT(*) as count FROM articles GROUP BY category ORDER BY count DESC"
+  ).all();
+
+  const today = new Date().toISOString().slice(0, 10);
+  const todayCount = db.prepare(
+    "SELECT COUNT(*) as count FROM articles WHERE published >= ?"
+  ).get(today + "T00:00:00").count;
+
+  const aiSummaryCount = db.prepare(
+    "SELECT COUNT(*) as count FROM articles WHERE ai_summary = 1"
+  ).get().count;
+
+  const hourlyActivity = db.prepare(`
+    SELECT substr(published, 12, 2) as hour, COUNT(*) as count
+    FROM articles WHERE published >= ?
+    GROUP BY hour ORDER BY hour
+  `).all(today + "T00:00:00");
+
+  return { totalArticles, totalSources, todayCount, aiSummaryCount, bySource, byCategory, hourlyActivity };
+}
+
+export function getDailyDigest(limit = 5) {
+  const today = new Date().toISOString().slice(0, 10);
+  // Get today's articles, one per source to get variety, ordered by newest
+  return db.prepare(`
+    SELECT * FROM (
+      SELECT *, ROW_NUMBER() OVER (PARTITION BY source ORDER BY published DESC) as rn
+      FROM articles WHERE published >= ?
+    ) WHERE rn = 1 ORDER BY published DESC LIMIT ?
+  `).all(today + "T00:00:00", limit);
+}
+
+export function findSimilarArticles(articleId) {
+  const article = db.prepare("SELECT * FROM articles WHERE id = ?").get(articleId);
+  if (!article) return [];
+
+  // Extract significant words from the title
+  const words = article.title.toLowerCase()
+    .replace(/[^\wäöüß\s]/g, "")
+    .split(/\s+/)
+    .filter(w => w.length > 3);
+
+  if (words.length === 0) return [];
+
+  // Find articles that share title words (from different sources)
+  const conditions = words.slice(0, 5).map(() => "LOWER(title) LIKE ?").join(" OR ");
+  const params = words.slice(0, 5).map(w => `%${w}%`);
+
+  return db.prepare(`
+    SELECT * FROM articles
+    WHERE id != ? AND source != ? AND (${conditions})
+    ORDER BY published DESC LIMIT 5
+  `).all(article.id, article.source, ...params);
+}
+
+export function getStoryClusters(hours = 24, minClusterSize = 2) {
+  const since = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
+  const articles = db.prepare(
+    "SELECT * FROM articles WHERE published > ? ORDER BY published DESC"
+  ).all(since);
+
+  // Simple clustering: group articles that share 2+ significant words in title
+  const clusters = [];
+  const used = new Set();
+
+  for (let i = 0; i < articles.length; i++) {
+    if (used.has(articles[i].id)) continue;
+
+    const wordsA = articles[i].title.toLowerCase()
+      .replace(/[^\wäöüß\s]/g, "").split(/\s+/).filter(w => w.length > 3);
+
+    const cluster = [articles[i]];
+
+    for (let j = i + 1; j < articles.length; j++) {
+      if (used.has(articles[j].id)) continue;
+      if (articles[j].source === articles[i].source) continue;
+
+      const wordsB = articles[j].title.toLowerCase()
+        .replace(/[^\wäöüß\s]/g, "").split(/\s+/).filter(w => w.length > 3);
+
+      const shared = wordsA.filter(w => wordsB.includes(w)).length;
+      if (shared >= 2) {
+        cluster.push(articles[j]);
+        used.add(articles[j].id);
+      }
+    }
+
+    if (cluster.length >= minClusterSize) {
+      used.add(articles[i].id);
+      clusters.push({
+        topic: articles[i].title,
+        articles: cluster,
+        sourceCount: new Set(cluster.map(a => a.source)).size,
+      });
+    }
+  }
+
+  return clusters.sort((a, b) => b.articles.length - a.articles.length);
+}
+
 export default db;
