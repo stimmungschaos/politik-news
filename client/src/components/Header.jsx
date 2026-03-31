@@ -214,7 +214,7 @@ export default function Header() {
               <img
                 src="https://upload.wikimedia.org/wikipedia/commons/f/f7/Marx_%2B_Engels_%2B_Lenin_.svg"
                 alt="Marx, Engels, Lenin"
-                className="h-30 w-auto"
+                className="h-24 w-auto"
               />
             </div>
             <div className="bg-red-600 p-1.5 rounded-lg sm:hidden">
