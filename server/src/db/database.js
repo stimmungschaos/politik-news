@@ -246,44 +246,104 @@ export function getDailyDigest(limit = 5) {
   `).all(today + "T00:00:00", limit);
 }
 
+// Stopwörter die beim Clustering ignoriert werden
+const CLUSTER_STOP = new Set([
+  "der", "die", "das", "den", "dem", "des", "ein", "eine", "einer", "einem", "einen",
+  "und", "oder", "aber", "denn", "dass", "weil", "wenn", "als", "nach", "sich",
+  "nicht", "auch", "noch", "schon", "nur", "mehr", "sehr", "wird", "hat", "haben",
+  "ist", "sind", "war", "kann", "will", "soll", "muss", "gibt", "macht", "geht",
+  "über", "unter", "vor", "für", "mit", "auf", "aus", "bei", "von", "zum", "zur",
+  "wie", "was", "wer", "alle", "alle", "viele", "neue", "neuer", "neues", "neuen",
+  "erste", "ersten", "erster", "zwei", "drei", "vier", "fünf", "teil", "seit",
+  "wieder", "bereits", "damit", "dabei", "dazu", "darum", "durch", "immer", "gegen",
+  "könnte", "könnten", "müssen", "sollte", "worden", "wurden", "würde", "worden",
+  "laut", "rund", "etwa", "fast", "wohl", "kaum", "ganz", "weiter", "jetzt",
+  "prozent", "euro", "millionen", "milliarden", "jahr", "jahre", "jahren",
+  "deutsche", "deutschen", "deutscher", "deutschland", "berlin",
+]);
+
+/**
+ * Extrahiert signifikante Wörter aus einem Titel.
+ * Filtert Stopwörter, normalisiert Genitiv-s, min 4 Buchstaben.
+ */
+function extractKeywords(title) {
+  return title
+    .toLowerCase()
+    .replace(/[^\wäöüßÄÖÜ\s]/g, "")
+    .split(/\s+/)
+    .map(w => w.length > 4 && w.endsWith("s") && !w.endsWith("ss") && !w.endsWith("us") ? w.slice(0, -1) : w)
+    .filter(w => w.length >= 4 && !CLUSTER_STOP.has(w) && !/^\d+$/.test(w));
+}
+
+/**
+ * Berechnet Ähnlichkeit zwischen zwei Keyword-Sets.
+ * Gibt einen Score von 0-1 zurück (Jaccard-ähnlich, gewichtet nach Wortlänge).
+ */
+function similarity(wordsA, wordsB) {
+  if (wordsA.length === 0 || wordsB.length === 0) return 0;
+
+  const setB = new Set(wordsB);
+  let sharedWeight = 0;
+  let sharedCount = 0;
+
+  for (const w of wordsA) {
+    if (setB.has(w)) {
+      // Längere Wörter sind spezifischer und zählen mehr
+      sharedWeight += w.length;
+      sharedCount++;
+    }
+  }
+
+  if (sharedCount < 2) return 0; // mindestens 2 gemeinsame Wörter
+
+  const totalWords = new Set([...wordsA, ...wordsB]).size;
+  const jaccardScore = sharedCount / totalWords;
+  const lengthBonus = sharedWeight / (sharedCount * 5); // normalisiert auf ~1
+
+  return jaccardScore * lengthBonus;
+}
+
+const SIMILARITY_THRESHOLD = 0.15; // Schwellenwert für "gleiche Story"
+
 export function findSimilarArticles(articleId) {
   const article = db.prepare("SELECT * FROM articles WHERE id = ?").get(articleId);
   if (!article) return [];
 
-  // Extract significant words from the title
-  const words = article.title.toLowerCase()
-    .replace(/[^\wäöüß\s]/g, "")
-    .split(/\s+/)
-    .filter(w => w.length > 3);
+  const keywords = extractKeywords(article.title);
+  if (keywords.length === 0) return [];
 
-  if (words.length === 0) return [];
+  // Hole Artikel der letzten 48 Stunden von anderen Quellen
+  const since = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+  const candidates = db.prepare(
+    "SELECT * FROM articles WHERE id != ? AND source != ? AND published > ? ORDER BY published DESC"
+  ).all(article.id, article.source, since);
 
-  // Find articles that share title words (from different sources)
-  const conditions = words.slice(0, 5).map(() => "LOWER(title) LIKE ?").join(" OR ");
-  const params = words.slice(0, 5).map(w => `%${w}%`);
-
-  return db.prepare(`
-    SELECT * FROM articles
-    WHERE id != ? AND source != ? AND (${conditions})
-    ORDER BY published DESC LIMIT 5
-  `).all(article.id, article.source, ...params);
+  return candidates
+    .map(c => ({ ...c, score: similarity(keywords, extractKeywords(c.title)) }))
+    .filter(c => c.score >= SIMILARITY_THRESHOLD)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5);
 }
 
-export function getStoryClusters(hours = 24, minClusterSize = 2) {
+export function getStoryClusters(hours = 48, minClusterSize = 2) {
   const since = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
   const articles = db.prepare(
     "SELECT * FROM articles WHERE published > ? ORDER BY published DESC"
   ).all(since);
 
-  // Simple clustering: group articles that share 2+ significant words in title
+  // Keyword-Cache pro Artikel
+  const keywordMap = new Map();
+  for (const a of articles) {
+    keywordMap.set(a.id, extractKeywords(a.title));
+  }
+
   const clusters = [];
   const used = new Set();
 
   for (let i = 0; i < articles.length; i++) {
     if (used.has(articles[i].id)) continue;
-
-    const wordsA = articles[i].title.toLowerCase()
-      .replace(/[^\wäöüß\s]/g, "").split(/\s+/).filter(w => w.length > 3);
+    const wordsA = keywordMap.get(articles[i].id);
+    if (wordsA.length < 2) continue;
 
     const cluster = [articles[i]];
 
@@ -291,11 +351,10 @@ export function getStoryClusters(hours = 24, minClusterSize = 2) {
       if (used.has(articles[j].id)) continue;
       if (articles[j].source === articles[i].source) continue;
 
-      const wordsB = articles[j].title.toLowerCase()
-        .replace(/[^\wäöüß\s]/g, "").split(/\s+/).filter(w => w.length > 3);
+      const wordsB = keywordMap.get(articles[j].id);
+      const score = similarity(wordsA, wordsB);
 
-      const shared = wordsA.filter(w => wordsB.includes(w)).length;
-      if (shared >= 2) {
+      if (score >= SIMILARITY_THRESHOLD) {
         cluster.push(articles[j]);
         used.add(articles[j].id);
       }
@@ -303,15 +362,21 @@ export function getStoryClusters(hours = 24, minClusterSize = 2) {
 
     if (cluster.length >= minClusterSize) {
       used.add(articles[i].id);
+
+      // Finde den besten Titel (der mit den meisten Keywords)
+      const bestTitle = cluster
+        .map(a => ({ title: a.title, len: keywordMap.get(a.id).length }))
+        .sort((a, b) => b.len - a.len)[0].title;
+
       clusters.push({
-        topic: articles[i].title,
+        topic: bestTitle,
         articles: cluster,
         sourceCount: new Set(cluster.map(a => a.source)).size,
       });
     }
   }
 
-  return clusters.sort((a, b) => b.articles.length - a.articles.length);
+  return clusters.sort((a, b) => b.sourceCount - a.sourceCount || b.articles.length - a.articles.length);
 }
 
 export default db;
