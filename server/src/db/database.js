@@ -116,39 +116,87 @@ export function upsertSource(source) {
 }
 
 export function getTrendingTopics(hours = 24, limit = 15) {
-  // Get articles from last N hours, extract common words from titles
   const since = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
   const articles = db.prepare(
     "SELECT title FROM articles WHERE published > ? ORDER BY published DESC"
   ).all(since);
 
-  // Count word frequency (ignore short/common words)
+  // Umfangreiche Stopwort-Liste: Artikel, Pronomen, Präpositionen, Konjunktionen,
+  // Hilfsverben, häufige Adverbien, Fragewörter, Zahlen, Nachrichtenfloskeln
   const stopWords = new Set([
-    "der", "die", "das", "und", "in", "von", "zu", "für", "mit", "auf",
-    "ist", "im", "den", "des", "ein", "eine", "einer", "einem", "einen",
-    "nicht", "sich", "als", "auch", "es", "an", "nach", "wie", "aus",
-    "bei", "über", "wird", "hat", "zum", "zur", "noch", "vor", "um",
-    "dass", "aber", "oder", "so", "wenn", "kann", "mehr", "nur", "schon",
-    "war", "sind", "werden", "einem", "seine", "seine", "ihre", "will",
-    "neue", "neuer", "neues", "neuem", "neuen", "gibt", "gegen", "haben",
-    "wir", "sie", "ich", "was", "man", "durch", "vom", "bis", "dem",
-    "–", "-", "—", "|", "/", ":", "the", "and", "for"
+    // Artikel & Pronomen
+    "der", "die", "das", "den", "dem", "des", "ein", "eine", "einer", "einem", "einen",
+    "er", "sie", "es", "wir", "ihr", "uns", "ihm", "ihn", "mir", "ich", "mich", "dir",
+    "sich", "man", "seine", "seiner", "seinem", "seinen", "ihre", "ihrer", "ihrem", "ihren",
+    "diese", "dieser", "diesem", "diesen", "dieses", "jede", "jeder", "jedem", "jeden",
+    "alle", "allem", "allen", "aller", "alles", "andere", "anderer", "anderen", "anderem",
+    "welche", "welcher", "welchem", "welchen", "welches", "solche", "solcher", "solchem",
+    // Präpositionen
+    "in", "von", "zu", "für", "mit", "auf", "an", "nach", "aus", "bei", "über", "unter",
+    "vor", "um", "durch", "vom", "zum", "zur", "bis", "ohne", "zwischen", "neben",
+    "gegen", "seit", "während", "wegen", "trotz", "statt", "außer", "innerhalb",
+    // Konjunktionen
+    "und", "oder", "aber", "denn", "dass", "weil", "wenn", "als", "ob", "damit",
+    "sondern", "doch", "jedoch", "weder", "noch", "sowohl", "bevor", "nachdem",
+    // Hilfs- & Modalverben
+    "ist", "sind", "war", "wird", "hat", "haben", "hatte", "werden", "worden", "wurde",
+    "kann", "können", "könnte", "will", "wollen", "wollte", "soll", "sollen", "sollte",
+    "muss", "müssen", "musste", "darf", "dürfen", "mag", "möchte", "sein", "sei", "wäre",
+    "würde", "würden", "lässt", "lassen", "bleibt", "geht", "gibt", "geben", "kommt",
+    "kommen", "macht", "machen", "sagt", "sagen", "steht", "stehen", "heißt",
+    // Adverbien & häufige Wörter
+    "nicht", "auch", "noch", "schon", "nur", "mehr", "sehr", "so", "wie", "dann",
+    "dort", "hier", "jetzt", "immer", "wieder", "bereits", "etwa", "rund", "fast",
+    "ganz", "wohl", "kaum", "eben", "erst", "lange", "weiter", "zudem", "daher",
+    "dabei", "dazu", "darum", "davor", "danach", "davon", "darauf", "darüber",
+    "deshalb", "dennoch", "allerdings", "offenbar", "laut", "sowie", "insgesamt",
+    // Fragewörter
+    "was", "wer", "wen", "wem", "warum", "wieso", "weshalb", "wann", "wohin", "woher",
+    // Zahlen & Maße
+    "prozent", "milliarden", "millionen", "tausend", "euro", "jahr", "jahre", "jahren",
+    "monat", "monate", "monaten", "woche", "wochen", "tag", "tage", "tagen",
+    // Nachrichtenfloskeln
+    "neue", "neuer", "neues", "neuem", "neuen", "viele", "vielen", "ersten", "erste",
+    "erster", "laut", "zwei", "drei", "vier", "fünf", "sechs", "nach", "beim",
+    "teil", "seite", "ende", "anfang", "grund", "fall", "frage", "thema",
+    // Sonderzeichen
+    "–", "-", "—", "|", "/", ":", "the", "and", "for", "with",
   ]);
+
+  /**
+   * Einfache Normalisierung: entfernt deutsche Endungen wie -s, -es, -en, -er, -em
+   * damit "Israels" → "israel", "deutschen" → "deutsch" etc.
+   */
+  function normalize(word) {
+    let w = word.toLowerCase().trim();
+    // Genitiv-s: "israels" → "israel", "deutschlands" → "deutschland"
+    if (w.length > 4 && w.endsWith("s") && !w.endsWith("ss") && !w.endsWith("us")) {
+      w = w.slice(0, -1);
+    }
+    return w;
+  }
 
   const wordCounts = {};
   for (const { title } of articles) {
-    const words = title.toLowerCase().replace(/[^\wäöüß\s-]/g, "").split(/\s+/);
-    for (const word of words) {
-      if (word.length > 2 && !stopWords.has(word)) {
-        wordCounts[word] = (wordCounts[word] || 0) + 1;
-      }
+    const words = title.replace(/[^\wäöüßÄÖÜ\s-]/g, "").split(/\s+/);
+    const seen = new Set(); // ein Wort pro Titel nur einmal zählen
+    for (const raw of words) {
+      const word = normalize(raw);
+      if (word.length < 4) continue; // mindestens 4 Buchstaben
+      if (stopWords.has(word)) continue;
+      if (/^\d+$/.test(word)) continue; // reine Zahlen ignorieren
+      if (seen.has(word)) continue;
+      seen.add(word);
+      wordCounts[word] = (wordCounts[word] || 0) + 1;
     }
   }
 
+  // Nur Wörter die in mindestens 2 Artikeln vorkommen
   return Object.entries(wordCounts)
+    .filter(([, count]) => count >= 2)
     .sort((a, b) => b[1] - a[1])
     .slice(0, limit)
-    .map(([word, count]) => ({ word, count }));
+    .map(([word, count]) => ({ word: word.charAt(0).toUpperCase() + word.slice(1), count }));
 }
 
 export function getBreakingNews(limit = 1) {
