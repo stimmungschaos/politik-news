@@ -47,19 +47,26 @@ export function insertArticle(article) {
 
 export function getArticles({ page = 1, limit = 20, category = null }) {
   const offset = (page - 1) * limit;
-  if (category) {
-    const rows = db.prepare(
-      "SELECT * FROM articles WHERE category = ? ORDER BY published DESC LIMIT ? OFFSET ?"
-    ).all(category, limit, offset);
-    const total = db.prepare(
-      "SELECT COUNT(*) as count FROM articles WHERE category = ?"
-    ).get(category).count;
-    return { articles: rows, total };
-  }
-  const rows = db.prepare(
-    "SELECT * FROM articles ORDER BY published DESC LIMIT ? OFFSET ?"
-  ).all(limit, offset);
-  const total = db.prepare("SELECT COUNT(*) as count FROM articles").get().count;
+  // Interleave: Jede Quelle bekommt einen Rang (1. neuester Artikel, 2. neuester etc.)
+  // Dann sortieren wir nach Rang → Quellen wechseln sich ab
+  const query = category
+    ? `SELECT * FROM (
+        SELECT *, ROW_NUMBER() OVER (PARTITION BY source ORDER BY published DESC) as src_rank
+        FROM articles WHERE category = ?
+      ) ORDER BY src_rank, published DESC LIMIT ? OFFSET ?`
+    : `SELECT * FROM (
+        SELECT *, ROW_NUMBER() OVER (PARTITION BY source ORDER BY published DESC) as src_rank
+        FROM articles
+      ) ORDER BY src_rank, published DESC LIMIT ? OFFSET ?`;
+
+  const rows = category
+    ? db.prepare(query).all(category, limit, offset)
+    : db.prepare(query).all(limit, offset);
+
+  const total = category
+    ? db.prepare("SELECT COUNT(*) as count FROM articles WHERE category = ?").get(category).count
+    : db.prepare("SELECT COUNT(*) as count FROM articles").get().count;
+
   return { articles: rows, total };
 }
 

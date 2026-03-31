@@ -7,7 +7,56 @@ import { createSummary } from "./summaryService.js";
 import { categorizeArticle } from "./categoryService.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const parser = new Parser();
+const parser = new Parser({
+  customFields: {
+    item: [
+      ["media:content", "mediaContent", { keepArray: true }],
+      ["media:thumbnail", "mediaThumbnail"],
+      ["media:group", "mediaGroup"],
+    ],
+  },
+});
+
+/**
+ * Versucht ein Bild aus verschiedenen RSS-Feldern zu extrahieren.
+ * Prüft: enclosure, media:content, media:thumbnail, und <img> im HTML-Content.
+ */
+function extractImageUrl(item) {
+  // 1. Enclosure (Standard-RSS)
+  if (item.enclosure?.url) return item.enclosure.url;
+
+  // 2. media:content (häufig bei Spiegel, Tagesschau etc.)
+  if (item.mediaContent) {
+    const media = Array.isArray(item.mediaContent) ? item.mediaContent : [item.mediaContent];
+    for (const m of media) {
+      const url = m.$?.url || m.url;
+      if (url) return url;
+    }
+  }
+
+  // 3. media:thumbnail
+  if (item.mediaThumbnail) {
+    const url = item.mediaThumbnail.$?.url || item.mediaThumbnail.url;
+    if (url) return url;
+  }
+
+  // 4. media:group > media:content
+  if (item.mediaGroup?.["media:content"]) {
+    const content = item.mediaGroup["media:content"];
+    const media = Array.isArray(content) ? content : [content];
+    for (const m of media) {
+      const url = m.$?.url || m.url;
+      if (url) return url;
+    }
+  }
+
+  // 5. <img> Tag im HTML-Content extrahieren
+  const html = item.content || item["content:encoded"] || item.description || "";
+  const imgMatch = html.match(/<img[^>]+src=["']([^"']+)["']/i);
+  if (imgMatch?.[1]) return imgMatch[1];
+
+  return null;
+}
 
 function loadSources() {
   const filePath = path.join(__dirname, "..", "config", "sources.json");
@@ -46,7 +95,7 @@ export async function fetchAllFeeds() {
           summary,
           source: source.name,
           category,
-          imageUrl: item.enclosure?.url || null,
+          imageUrl: extractImageUrl(item),
           published: item.isoDate || new Date().toISOString(),
           fetchedAt: new Date().toISOString(),
           aiSummary: aiGenerated ? 1 : 0,
