@@ -1,9 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Search, Newspaper, Layers, BarChart3, Bookmark as BookmarkIcon, RefreshCw } from "lucide-react";
+import { Search, Newspaper, Layers, BarChart3, Bookmark as BookmarkIcon, BookOpen, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import CATEGORIES from "../lib/categories";
 import { HEADER_ACCENT_ICONS, HEADER_SLOGAN, FLAGS, POLITICAL_SYMBOLS } from "../lib/icons";
 import { refreshFeeds } from "../lib/api";
+import MobileMenu from "./MobileMenu";
 
 /* ── Roter Stern (SVG) ── */
 function RedStar({ size = 14 }) {
@@ -243,6 +244,9 @@ export default function Header() {
             </div>
           </form>
 
+          {/* Mobile Menu */}
+          <MobileMenu />
+
           {/* Reload Button */}
           <div className="relative shrink-0">
             <button
@@ -300,6 +304,13 @@ export default function Header() {
           >
             <BookmarkIcon className="w-3.5 h-3.5 text-yellow-400" />
             Merkliste
+          </Link>
+          <Link
+            to="/theorie"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-300 hover:text-white hover:bg-gray-800 rounded-md transition-colors whitespace-nowrap"
+          >
+            <BookOpen className="w-3.5 h-3.5 text-red-400" />
+            Theorie
           </Link>
         </nav>
       </div>

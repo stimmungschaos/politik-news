@@ -7,6 +7,7 @@ import SearchPage from "./pages/SearchPage";
 import StatsPage from "./pages/StatsPage";
 import StoryClustersPage from "./pages/StoryClustersPage";
 import BookmarksPage from "./pages/BookmarksPage";
+import TheoryPage from "./pages/TheoryPage";
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
           <Route path="/dashboard" element={<StatsPage />} />
           <Route path="/stories" element={<StoryClustersPage />} />
           <Route path="/lesezeichen" element={<BookmarksPage />} />
+          <Route path="/theorie" element={<TheoryPage />} />
         </Routes>
       </main>
       <Footer />

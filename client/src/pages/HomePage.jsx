@@ -4,6 +4,8 @@ import { fetchArticles } from "../lib/api";
 import HeroBanner from "../components/HeroBanner";
 import BreakingNews from "../components/BreakingNews";
 import TrendingTopics from "../components/TrendingTopics";
+import QuoteOfTheDay from "../components/QuoteOfTheDay";
+import TodayInHistory from "../components/TodayInHistory";
 import HeroArticle from "../components/HeroArticle";
 import ArticleCard from "../components/ArticleCard";
 import SectionDivider from "../components/SectionDivider";
@@ -42,8 +44,16 @@ export default function HomePage() {
       {/* Breaking News */}
       <BreakingNews />
 
-      {/* Trending Topics */}
-      <TrendingTopics />
+      {/* Trending Topics + Zitat + Geschichte Sidebar */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <TrendingTopics />
+        </div>
+        <div className="space-y-6">
+          <QuoteOfTheDay />
+          <TodayInHistory />
+        </div>
+      </div>
 
       {/* Top-Artikel */}
       {heroArticles.length > 0 && (
