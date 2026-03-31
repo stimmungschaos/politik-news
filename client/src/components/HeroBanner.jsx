@@ -68,8 +68,8 @@ export default function HeroBanner() {
               </div>
             </div>
             <p className="text-gray-400 text-sm md:text-base max-w-lg">
-              Dein unabhängiger Nachrichtenüberblick — Artikel aus über 10 Quellen,
-              automatisch zusammengefasst und kategorisiert.
+              Deine linke Nachrichtenseite — Artikel aus über 10 progressiven
+              und unabhängigen Quellen, automatisch zusammengefasst.
             </p>
           </div>
 

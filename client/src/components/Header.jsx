@@ -2,7 +2,40 @@ import { Link, useNavigate } from "react-router-dom";
 import { Search, Newspaper } from "lucide-react";
 import { useState } from "react";
 import CATEGORIES from "../lib/categories";
-import { HEADER_ACCENT_ICONS } from "../lib/icons";
+import { HEADER_ACCENT_ICONS, HEADER_SLOGAN, FLAGS } from "../lib/icons";
+
+/** Kleine inline SVG-Flagge (3 horizontale Streifen oder custom) */
+function MiniFlag({ colors, title }) {
+  if (colors.length === 2) {
+    // Einfarbig mit Symbol (z.B. Vietnam: rot + gelber Stern)
+    return (
+      <svg width="18" height="12" viewBox="0 0 18 12" className="rounded-[2px] shrink-0" aria-label={title}>
+        <rect width="18" height="12" fill={colors[0]} />
+        <polygon points="9,2 10.2,5.2 13.5,5.2 10.8,7.2 11.7,10.5 9,8.5 6.3,10.5 7.2,7.2 4.5,5.2 7.8,5.2" fill={colors[1]} />
+      </svg>
+    );
+  }
+  if (colors.length === 4) {
+    // Palästina-Style: 3 Streifen + Dreieck
+    return (
+      <svg width="18" height="12" viewBox="0 0 18 12" className="rounded-[2px] shrink-0" aria-label={title}>
+        <rect y="0" width="18" height="4" fill={colors[0]} />
+        <rect y="4" width="18" height="4" fill={colors[1]} />
+        <rect y="8" width="18" height="4" fill={colors[2]} />
+        <polygon points="0,0 7,6 0,12" fill={colors[3]} />
+      </svg>
+    );
+  }
+  // 3 horizontale Streifen
+  const h = 12 / colors.length;
+  return (
+    <svg width="18" height="12" viewBox="0 0 18 12" className="rounded-[2px] shrink-0" aria-label={title}>
+      {colors.map((c, i) => (
+        <rect key={i} y={i * h} width="18" height={h} fill={c} />
+      ))}
+    </svg>
+  );
+}
 
 export default function Header() {
   const [query, setQuery] = useState("");
@@ -18,17 +51,32 @@ export default function Header() {
 
   return (
     <header className="bg-gray-900 border-b border-gray-700 sticky top-0 z-50">
-      {/* Top accent bar with political icons */}
-      <div className="bg-gradient-to-r from-red-900/40 via-gray-900 to-red-900/40 px-4 py-1.5">
-        <div className="max-w-7xl mx-auto flex items-center justify-center gap-6 text-gray-500">
+      {/* Top accent bar — politische Icons, Flaggen, Slogan */}
+      <div className="bg-gradient-to-r from-red-900/50 via-gray-900 to-red-900/50 px-4 py-1.5">
+        <div className="max-w-7xl mx-auto flex items-center justify-center gap-3 md:gap-4">
+          {/* Icons links */}
           {HEADER_ACCENT_ICONS.slice(0, 3).map(({ icon: Icon }, i) => (
-            <Icon key={i} className="w-3.5 h-3.5" />
+            <Icon key={`l${i}`} className="w-3.5 h-3.5 text-red-500/60 hidden sm:block" />
           ))}
-          <span className="text-[10px] uppercase tracking-[0.3em] text-gray-400 font-medium">
-            Unabhängig informiert
+
+          {/* Flaggen links */}
+          {FLAGS.slice(0, 3).map((f) => (
+            <MiniFlag key={f.name} colors={f.colors} title={f.name} />
+          ))}
+
+          {/* Slogan */}
+          <span className="text-[9px] md:text-[10px] uppercase tracking-[0.25em] text-red-400 font-bold whitespace-nowrap">
+            ★ {HEADER_SLOGAN} ★
           </span>
-          {HEADER_ACCENT_ICONS.slice(3).map(({ icon: Icon }, i) => (
-            <Icon key={i} className="w-3.5 h-3.5" />
+
+          {/* Flaggen rechts */}
+          {FLAGS.slice(3).map((f) => (
+            <MiniFlag key={f.name} colors={f.colors} title={f.name} />
+          ))}
+
+          {/* Icons rechts */}
+          {HEADER_ACCENT_ICONS.slice(3, 6).map(({ icon: Icon }, i) => (
+            <Icon key={`r${i}`} className="w-3.5 h-3.5 text-red-500/60 hidden sm:block" />
           ))}
         </div>
       </div>

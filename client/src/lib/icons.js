@@ -1,53 +1,69 @@
 /**
  * === ICON-KONFIGURATION ===
  *
- * Hier sind ALLE Icons der Seite an einem Ort.
- * Du kannst jedes Icon austauschen — such dir eins aus unter:
- * https://lucide.dev/icons (alle verfügbaren Icons)
- *
- * Einfach den Import oben anpassen und unten den Namen ersetzen.
+ * Alle Icons der Seite an einem Ort.
+ * Verfügbare Icons: https://lucide.dev/icons
  */
 
 import {
   // === Header-Akzentleiste Icons ===
-  // Diese erscheinen ganz oben in der dünnen Leiste
-  Flame,        // Platzhalter 1 — z.B. Faust, Stern, Herz...
-  Shield,       // Platzhalter 2 — z.B. Sword, Flag, Award...
-  Vote,         // Platzhalter 3 — z.B. Building, Gavel, BookOpen...
-  Scale,        // Platzhalter 4 — z.B. HandHelping, Handshake...
-  Megaphone,    // Platzhalter 5 — z.B. Radio, Podcast, Volume2...
-  Rss,          // Platzhalter 6 — z.B. Wifi, Signal, Bell...
+  Flame,
+  Star,
+  Megaphone,
+  HandHelping,
+  Handshake,
+  BookOpen,
+  Hammer,
+  Heart,
+  HandFist,
+  Flag,
 
   // === Kategorie-Icons ===
-  // Diese erscheinen in der Navigationsleiste und auf den Artikel-Badges
-  Landmark,     // Innenpolitik  — z.B. Building2, Castle, Gavel...
-  Globe,        // Außenpolitik  — z.B. Earth, Map, Plane...
-  TrendingUp,   // Wirtschaft    — z.B. BarChart3, DollarSign, Wallet...
-  Leaf,         // Klima & Umwelt — z.B. TreePine, Sprout, Sun...
-  Users,        // Gesellschaft  — z.B. Heart, Home, GraduationCap...
-  Cpu,          // Technologie   — z.B. Monitor, Smartphone, Wifi...
+  Landmark,
+  Globe,
+  TrendingUp,
+  Leaf,
+  Users,
+  Cpu,
 } from "lucide-react";
 
 // ─────────────────────────────────────────────
 // HEADER-AKZENTLEISTE
-// Tausch hier die Icons aus wie du willst.
-// Format: { icon: LucideIconName }
+// Die Icons links und rechts vom Slogan
 // ─────────────────────────────────────────────
 export const HEADER_ACCENT_ICONS = [
+  { icon: Star },
   { icon: Flame },
-  { icon: Shield },
-  { icon: Vote },
-  { icon: Scale },
   { icon: Megaphone },
-  { icon: Rss },
+  { icon: Hammer },
+  { icon: HandHelping },
+  { icon: Handshake },
+  { icon: BookOpen },
+  { icon: Heart },
+  { icon: Flag },
+  { icon: HandFist },
+];
+
+// ─────────────────────────────────────────────
+// HEADER-SLOGAN
+// ─────────────────────────────────────────────
+export const HEADER_SLOGAN = "DEINE LINKE NACHRICHTENSEITE";
+
+// ─────────────────────────────────────────────
+// SVG-FLAGGEN (inline, kein externer Dienst)
+// Kleine Flaggen-Emojis als SVG für die Akzentleiste
+// ─────────────────────────────────────────────
+export const FLAGS = [
+  { name: "Kuba", colors: ["#002590", "#CC0D2E", "#FFFFFF"] },
+  { name: "Palästina", colors: ["#000000", "#FFFFFF", "#007A3D", "#CE1126"] },
+  { name: "Vietnam", colors: ["#DA251D", "#FFCD00"] },
+  { name: "Venezuela", colors: ["#FFCC00", "#00247D", "#CF142B"] },
+  { name: "Bolivien", colors: ["#007934", "#FCE300", "#D52B1E"] },
+  { name: "Rojava", colors: ["#007A3D", "#FFCD00", "#CE1126"] },
 ];
 
 // ─────────────────────────────────────────────
 // KATEGORIEN
-// Tausch Icon, Farbe oder Name aus.
-// Farben: text-red-400, text-blue-400, text-yellow-400,
-//         text-green-400, text-purple-400, text-cyan-400,
-//         text-orange-400, text-pink-400, text-indigo-400...
 // ─────────────────────────────────────────────
 export const CATEGORIES = [
   { name: "Innenpolitik", icon: Landmark, color: "text-red-400", bg: "bg-red-400/10" },
