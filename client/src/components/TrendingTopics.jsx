@@ -8,7 +8,9 @@ export default function TrendingTopics() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchTrendingTopics(24).then(setTopics);
+    fetchTrendingTopics(24).then((data) => {
+      if (Array.isArray(data)) setTopics(data);
+    });
   }, []);
 
   if (topics.length === 0) return null;
@@ -17,16 +19,16 @@ export default function TrendingTopics() {
 
   function getSize(count) {
     const ratio = count / maxCount;
-    if (ratio > 0.7) return "text-base font-bold";
-    if (ratio > 0.4) return "text-sm font-semibold";
+    if (ratio > 0.7) return "text-sm font-bold";
+    if (ratio > 0.4) return "text-xs font-semibold";
     return "text-xs font-medium";
   }
 
-  function getColor(count) {
+  function getStyle(count) {
     const ratio = count / maxCount;
-    if (ratio > 0.7) return "bg-red-500/20 text-red-300 border-red-500/30";
-    if (ratio > 0.4) return "bg-orange-500/15 text-orange-300 border-orange-500/25";
-    return "bg-gray-700/50 text-gray-300 border-gray-600/50";
+    if (ratio > 0.7) return { backgroundColor: "rgba(239,68,68,0.2)", color: "#fca5a5", borderColor: "rgba(239,68,68,0.3)" };
+    if (ratio > 0.4) return { backgroundColor: "rgba(249,115,22,0.15)", color: "#fdba74", borderColor: "rgba(249,115,22,0.25)" };
+    return { backgroundColor: "rgba(55,65,81,0.5)", color: "#d1d5db", borderColor: "rgba(75,85,99,0.5)" };
   }
 
   return (
@@ -36,16 +38,18 @@ export default function TrendingTopics() {
         <h3 className="text-sm font-semibold text-white uppercase tracking-wider">
           Trending Themen
         </h3>
+        <span className="text-[10px] text-gray-500">letzte 24h</span>
       </div>
       <div className="flex flex-wrap gap-2">
         {topics.map(({ word, count }) => (
           <button
             key={word}
             onClick={() => navigate(`/suche?q=${encodeURIComponent(word)}`)}
-            className={`px-2.5 py-1 rounded-lg border transition-colors hover:brightness-125 cursor-pointer ${getSize(count)} ${getColor(count)}`}
+            className={`px-2.5 py-1 rounded-lg border transition-opacity hover:opacity-80 cursor-pointer ${getSize(count)}`}
+            style={getStyle(count)}
           >
             {word}
-            <span className="ml-1 opacity-50 text-[10px]">{count}</span>
+            <span className="ml-1 opacity-40 text-[10px]">{count}</span>
           </button>
         ))}
       </div>

@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { BarChart3, Newspaper, Database, Brain, Clock, Zap } from "lucide-react";
 import { fetchStats, fetchDailyDigest } from "../lib/api";
-import { getSourceMeta } from "../lib/sources";
-import { getCategoryMeta } from "../lib/categories";
 import ArticleCard from "../components/ArticleCard";
 
 function StatCard({ icon: Icon, label, value, color = "text-red-400" }) {
@@ -15,22 +13,34 @@ function StatCard({ icon: Icon, label, value, color = "text-red-400" }) {
   );
 }
 
-function BarChart({ data, getColor, getLabel }) {
+// Feste Farben pro Index statt dynamische Tailwind-Klassen (die nicht funktionieren)
+const BAR_COLORS = [
+  "#ef4444", "#3b82f6", "#f59e0b", "#10b981", "#8b5cf6",
+  "#ec4899", "#06b6d4", "#f97316", "#14b8a6", "#6366f1",
+  "#d946ef", "#84cc16",
+];
+
+function BarChart({ data, getLabel }) {
   const max = Math.max(...data.map((d) => d.count), 1);
   return (
-    <div className="space-y-2">
+    <div className="space-y-2.5">
       {data.map((item, i) => (
         <div key={i} className="flex items-center gap-3">
-          <span className="text-xs text-gray-400 w-28 truncate shrink-0">
-            {getLabel ? getLabel(item) : item.source || item.category || item.hour}
+          <span className="text-xs text-gray-400 w-32 truncate shrink-0">
+            {getLabel ? getLabel(item) : item.source || item.category}
           </span>
           <div className="flex-1 bg-gray-700/30 rounded-full h-5 overflow-hidden">
             <div
-              className={`h-full rounded-full transition-all ${getColor ? getColor(item) : "bg-red-500/60"}`}
-              style={{ width: `${(item.count / max) * 100}%` }}
+              className="h-full rounded-full transition-all"
+              style={{
+                width: `${Math.max((item.count / max) * 100, 2)}%`,
+                backgroundColor: `${BAR_COLORS[i % BAR_COLORS.length]}99`,
+              }}
             />
           </div>
-          <span className="text-xs text-gray-400 w-8 text-right shrink-0">{item.count}</span>
+          <span className="text-xs text-gray-300 w-8 text-right shrink-0 font-mono">
+            {item.count}
+          </span>
         </div>
       ))}
     </div>
@@ -41,16 +51,27 @@ export default function StatsPage() {
   const [stats, setStats] = useState(null);
   const [digest, setDigest] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    Promise.all([fetchStats(), fetchDailyDigest()]).then(([s, d]) => {
-      setStats(s);
-      setDigest(d);
-      setLoading(false);
-    });
+    Promise.all([fetchStats(), fetchDailyDigest()])
+      .then(([s, d]) => {
+        setStats(s);
+        setDigest(d);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError(true);
+        setLoading(false);
+      });
   }, []);
 
   if (loading) return <p className="text-center text-gray-400 mt-12">Dashboard lädt...</p>;
+  if (error || !stats) return <p className="text-center text-gray-400 mt-12">Dashboard konnte nicht geladen werden.</p>;
+
+  const hourlyMax = stats.hourlyActivity.length > 0
+    ? Math.max(...stats.hourlyActivity.map((e) => e.count))
+    : 1;
 
   return (
     <div>
@@ -73,14 +94,11 @@ export default function StatsPage() {
           <h2 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
             Artikel nach Quelle
           </h2>
-          <BarChart
-            data={stats.bySource}
-            getLabel={(item) => item.source}
-            getColor={(item) => {
-              const meta = getSourceMeta(item.source);
-              return meta.bg.replace("/20", "/60");
-            }}
-          />
+          {stats.bySource.length > 0 ? (
+            <BarChart data={stats.bySource} getLabel={(item) => item.source} />
+          ) : (
+            <p className="text-gray-500 text-sm">Keine Daten vorhanden.</p>
+          )}
         </div>
 
         {/* Artikel nach Kategorie */}
@@ -88,14 +106,11 @@ export default function StatsPage() {
           <h2 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
             Artikel nach Kategorie
           </h2>
-          <BarChart
-            data={stats.byCategory}
-            getLabel={(item) => item.category}
-            getColor={(item) => {
-              const meta = getCategoryMeta(item.category);
-              return meta.bg.replace("/10", "/60");
-            }}
-          />
+          {stats.byCategory.length > 0 ? (
+            <BarChart data={stats.byCategory} getLabel={(item) => item.category} />
+          ) : (
+            <p className="text-gray-500 text-sm">Keine Daten vorhanden.</p>
+          )}
         </div>
       </div>
 
@@ -112,15 +127,18 @@ export default function StatsPage() {
             {Array.from({ length: 24 }, (_, h) => {
               const entry = stats.hourlyActivity.find((e) => parseInt(e.hour) === h);
               const count = entry?.count || 0;
-              const max = Math.max(...stats.hourlyActivity.map((e) => e.count), 1);
+              const heightPct = hourlyMax > 0 ? (count / hourlyMax) * 100 : 0;
               return (
-                <div key={h} className="flex-1 flex flex-col items-center gap-1">
+                <div key={h} className="flex-1 flex flex-col items-center justify-end h-full">
                   <div
-                    className="w-full bg-red-500/40 rounded-t transition-all min-h-[2px]"
-                    style={{ height: `${(count / max) * 100}%` }}
+                    className="w-full rounded-t transition-all"
+                    style={{
+                      height: `${Math.max(heightPct, count > 0 ? 4 : 0)}%`,
+                      backgroundColor: count > 0 ? "rgba(239, 68, 68, 0.5)" : "rgba(55, 65, 81, 0.3)",
+                    }}
                   />
                   {h % 3 === 0 && (
-                    <span className="text-[9px] text-gray-500">{h}h</span>
+                    <span className="text-[9px] text-gray-500 mt-1">{h}h</span>
                   )}
                 </div>
               );

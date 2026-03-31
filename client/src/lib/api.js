@@ -1,10 +1,19 @@
 const BASE = "/api";
 
+async function safeFetch(url, fallback) {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return fallback;
+    return res.json();
+  } catch {
+    return fallback;
+  }
+}
+
 export async function fetchArticles({ page = 1, limit = 20, category = null } = {}) {
   const params = new URLSearchParams({ page, limit });
   if (category) params.set("category", category);
-  const res = await fetch(`${BASE}/articles?${params}`);
-  return res.json();
+  return safeFetch(`${BASE}/articles?${params}`, { articles: [], total: 0, page: 1, limit: 20, totalPages: 0 });
 }
 
 export async function searchArticles({ q, source, category, page = 1, limit = 20 } = {}) {
@@ -12,46 +21,40 @@ export async function searchArticles({ q, source, category, page = 1, limit = 20
   if (q) params.set("q", q);
   if (source) params.set("source", source);
   if (category) params.set("category", category);
-  const res = await fetch(`${BASE}/articles/search?${params}`);
-  return res.json();
+  return safeFetch(`${BASE}/articles/search?${params}`, { articles: [], total: 0, page: 1, limit: 20, totalPages: 0 });
 }
 
 export async function fetchCategories() {
-  const res = await fetch(`${BASE}/categories`);
-  return res.json();
+  return safeFetch(`${BASE}/categories`, []);
 }
 
 export async function fetchSources() {
-  const res = await fetch(`${BASE}/sources`);
-  return res.json();
+  return safeFetch(`${BASE}/sources`, []);
 }
 
 export async function fetchTrendingTopics(hours = 24) {
-  const res = await fetch(`${BASE}/trending/topics?hours=${hours}`);
-  return res.json();
+  return safeFetch(`${BASE}/trending/topics?hours=${hours}`, []);
 }
 
 export async function fetchBreakingNews() {
-  const res = await fetch(`${BASE}/trending/breaking?limit=1`);
-  return res.json();
+  return safeFetch(`${BASE}/trending/breaking?limit=1`, []);
 }
 
 export async function fetchStats() {
-  const res = await fetch(`${BASE}/trending/stats`);
-  return res.json();
+  return safeFetch(`${BASE}/trending/stats`, {
+    totalArticles: 0, totalSources: 0, todayCount: 0, aiSummaryCount: 0,
+    bySource: [], byCategory: [], hourlyActivity: [],
+  });
 }
 
 export async function fetchDailyDigest() {
-  const res = await fetch(`${BASE}/trending/digest?limit=5`);
-  return res.json();
+  return safeFetch(`${BASE}/trending/digest?limit=5`, []);
 }
 
 export async function fetchStoryClusters(hours = 24) {
-  const res = await fetch(`${BASE}/trending/clusters?hours=${hours}`);
-  return res.json();
+  return safeFetch(`${BASE}/trending/clusters?hours=${hours}`, []);
 }
 
 export async function fetchSimilarArticles(id) {
-  const res = await fetch(`${BASE}/trending/similar/${id}`);
-  return res.json();
+  return safeFetch(`${BASE}/trending/similar/${id}`, []);
 }
