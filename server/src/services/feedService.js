@@ -74,18 +74,19 @@ function extractImageUrl(item) {
 async function fetchOgImage(url) {
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000);
+    const timeout = setTimeout(() => controller.abort(), 8000);
     const res = await fetch(url, {
       signal: controller.signal,
-      headers: { "User-Agent": "PolitikNews/1.0" },
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; PolitikNews/1.0)" },
     });
     clearTimeout(timeout);
     if (!res.ok) return null;
     const html = await res.text();
-    const match = html.match(/og:image["']\s+content=["']([^"']+)["']/i)
-      || html.match(/property=["']og:image["'][^>]+content=["']([^"']+)["']/i)
-      || html.match(/content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
-    return match?.[1] || null;
+    // Suche die meta-Zeile mit og:image und extrahiere die URL
+    const ogLine = html.match(/<meta[^>]*og:image[^>]*>/i)?.[0];
+    if (!ogLine) return null;
+    const contentMatch = ogLine.match(/content=["']([^"']+)["']/i);
+    return contentMatch?.[1] || null;
   } catch {
     return null;
   }
