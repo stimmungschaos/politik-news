@@ -69,11 +69,11 @@ export async function refreshFeeds() {
   }
 }
 
-export async function addSource({ name, url, categories, logo }) {
+export async function addSource({ name, url, categories, logo }, password) {
   try {
     const res = await fetch(`${BASE}/sources`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "X-Admin-Password": password },
       body: JSON.stringify({ name, url, categories, logo }),
     });
     return res.json();
@@ -82,9 +82,12 @@ export async function addSource({ name, url, categories, logo }) {
   }
 }
 
-export async function deleteSource(name) {
+export async function deleteSource(name, password) {
   try {
-    const res = await fetch(`${BASE}/sources/${encodeURIComponent(name)}`, { method: "DELETE" });
+    const res = await fetch(`${BASE}/sources/${encodeURIComponent(name)}`, {
+      method: "DELETE",
+      headers: { "X-Admin-Password": password },
+    });
     return res.json();
   } catch {
     return { error: "failed" };

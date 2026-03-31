@@ -1,13 +1,22 @@
 import { useEffect, useState } from "react";
-import { Rss, Plus, Trash2, ExternalLink } from "lucide-react";
+import { Rss, Plus, Trash2, Lock, LogIn } from "lucide-react";
 import { fetchSources, addSource, deleteSource } from "../lib/api";
+import CATEGORIES from "../lib/categories";
+
+const CATEGORY_OPTIONS = CATEGORIES.map((c) => c.name);
 
 export default function SourcesPage() {
   const [sources, setSources] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ name: "", url: "", categories: "Innenpolitik" });
+  const [form, setForm] = useState({ name: "", url: "", categories: [] });
   const [error, setError] = useState("");
+
+  // Login
+  const [password, setPassword] = useState(() => sessionStorage.getItem("admin-pw") || "");
+  const [loggedIn, setLoggedIn] = useState(() => !!sessionStorage.getItem("admin-pw"));
+  const [loginInput, setLoginInput] = useState("");
+  const [loginError, setLoginError] = useState("");
 
   useEffect(() => {
     fetchSources().then((data) => {
@@ -16,6 +25,24 @@ export default function SourcesPage() {
     });
   }, []);
 
+  function handleLogin(e) {
+    e.preventDefault();
+    if (!loginInput.trim()) return;
+    sessionStorage.setItem("admin-pw", loginInput.trim());
+    setPassword(loginInput.trim());
+    setLoggedIn(true);
+    setLoginError("");
+  }
+
+  function toggleCategory(cat) {
+    setForm((prev) => ({
+      ...prev,
+      categories: prev.categories.includes(cat)
+        ? prev.categories.filter((c) => c !== cat)
+        : [...prev.categories, cat],
+    }));
+  }
+
   async function handleAdd(e) {
     e.preventDefault();
     setError("");
@@ -23,25 +50,89 @@ export default function SourcesPage() {
       setError("Name und URL sind Pflichtfelder.");
       return;
     }
-    const cats = form.categories.split(",").map((c) => c.trim()).filter(Boolean);
-    const result = await addSource({ name: form.name.trim(), url: form.url.trim(), categories: cats });
+    if (form.categories.length === 0) {
+      setError("Mindestens eine Kategorie auswählen.");
+      return;
+    }
+    const result = await addSource(
+      { name: form.name.trim(), url: form.url.trim(), categories: form.categories },
+      password
+    );
     if (result.error) {
-      setError(result.error === "source already exists" ? "Diese Quelle existiert bereits." : "Fehler beim Hinzufügen.");
+      if (result.error === "unauthorized") {
+        setError("Falsches Passwort.");
+        setLoggedIn(false);
+        sessionStorage.removeItem("admin-pw");
+      } else if (result.error === "source already exists") {
+        setError("Diese Quelle existiert bereits.");
+      } else {
+        setError("Fehler beim Hinzufügen.");
+      }
     } else {
-      setSources(result.sources.map((s) => ({ ...s, categories: typeof s.categories === "string" ? JSON.parse(s.categories) : s.categories })));
-      setForm({ name: "", url: "", categories: "Innenpolitik" });
+      setSources(
+        result.sources.map((s) => ({
+          ...s,
+          categories: typeof s.categories === "string" ? JSON.parse(s.categories) : s.categories,
+        }))
+      );
+      setForm({ name: "", url: "", categories: [] });
       setShowForm(false);
     }
   }
 
   async function handleDelete(name) {
-    const result = await deleteSource(name);
+    const result = await deleteSource(name, password);
+    if (result.error === "unauthorized") {
+      setLoggedIn(false);
+      sessionStorage.removeItem("admin-pw");
+      return;
+    }
     if (result.sources) {
-      setSources(result.sources.map((s) => ({ ...s, categories: typeof s.categories === "string" ? JSON.parse(s.categories) : s.categories })));
+      setSources(
+        result.sources.map((s) => ({
+          ...s,
+          categories: typeof s.categories === "string" ? JSON.parse(s.categories) : s.categories,
+        }))
+      );
     }
   }
 
-  if (loading) return <p className="text-center mt-12" style={{ color: "var(--text-secondary)" }}>Quellen laden...</p>;
+  if (loading) return <p className="text-center mt-12 text-gray-400">Quellen laden...</p>;
+
+  // Login-Gate
+  if (!loggedIn) {
+    return (
+      <div className="max-w-sm mx-auto mt-20">
+        <div className="bg-gray-800/50 rounded-xl border border-gray-700 p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <Lock className="w-6 h-6 text-red-400" />
+            <h2 className="text-lg font-bold text-white">Admin-Zugang</h2>
+          </div>
+          <p className="text-gray-400 text-sm mb-4">
+            Passwort eingeben um Quellen zu verwalten.
+          </p>
+          <form onSubmit={handleLogin} className="space-y-3">
+            <input
+              type="password"
+              value={loginInput}
+              onChange={(e) => setLoginInput(e.target.value)}
+              placeholder="Passwort"
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm focus:outline-none focus:border-red-500"
+              autoFocus
+            />
+            {loginError && <p className="text-red-400 text-sm">{loginError}</p>}
+            <button
+              type="submit"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm transition-colors"
+            >
+              <LogIn className="w-4 h-4" />
+              Einloggen
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -82,14 +173,26 @@ export default function SourcesPage() {
             />
           </div>
           <div>
-            <label className="text-sm text-gray-400 block mb-1">Kategorien (kommagetrennt)</label>
-            <input
-              type="text"
-              value={form.categories}
-              onChange={(e) => setForm({ ...form, categories: e.target.value })}
-              placeholder="Innenpolitik, Gesellschaft"
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm focus:outline-none focus:border-red-500"
-            />
+            <label className="text-sm text-gray-400 block mb-2">Kategorien</label>
+            <div className="flex flex-wrap gap-2">
+              {CATEGORY_OPTIONS.map((cat) => {
+                const selected = form.categories.includes(cat);
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => toggleCategory(cat)}
+                    className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+                      selected
+                        ? "bg-red-600 border-red-600 text-white"
+                        : "bg-gray-800 border-gray-600 text-gray-300 hover:border-gray-400"
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                );
+              })}
+            </div>
           </div>
           {error && <p className="text-red-400 text-sm">{error}</p>}
           <div className="flex gap-3">
