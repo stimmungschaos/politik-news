@@ -14,6 +14,7 @@ export default function ArticleCard({ article }) {
     year: "numeric",
   });
   const [saved, setSaved] = useState(() => isBookmarked(article.id));
+  const hasImage = !!article.image_url;
 
   function toggleBookmark(e) {
     e.preventDefault();
@@ -29,7 +30,7 @@ export default function ArticleCard({ article }) {
 
   return (
     <article className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden hover:border-gray-500 transition-colors group">
-      {article.image_url && (
+      {hasImage && (
         <div className="relative">
           <img
             src={article.image_url}
@@ -43,7 +44,7 @@ export default function ArticleCard({ article }) {
           </span>
         </div>
       )}
-      <div className="p-4">
+      <div className={`p-4 ${!hasImage ? "border-l-4 border-l-red-600/40" : ""}`}>
         <div className="flex items-center gap-2 mb-2">
           <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full ${cat.bg} ${cat.color}`}>
             <Icon className="w-3 h-3" />
@@ -54,11 +55,11 @@ export default function ArticleCard({ article }) {
           </span>
         </div>
 
-        <h3 className="text-white font-semibold mb-2 line-clamp-2 group-hover:text-red-400 transition-colors">
+        <h3 className={`text-white font-semibold mb-2 group-hover:text-red-400 transition-colors ${hasImage ? "line-clamp-2" : "line-clamp-3 text-base"}`}>
           {article.title}
         </h3>
 
-        <p className="text-gray-400 text-sm line-clamp-3 mb-3">
+        <p className={`text-gray-400 text-sm mb-3 ${hasImage ? "line-clamp-3" : "line-clamp-4"}`}>
           {article.summary}
         </p>
 

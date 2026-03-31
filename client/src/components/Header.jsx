@@ -209,7 +209,36 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 py-3">
         <div className="flex items-center justify-between gap-4">
           <Link to="/" className="flex items-center gap-2.5 shrink-0">
-            <div className="bg-red-600 p-1.5 rounded-lg">
+            {/* Marx-Lenin Banner */}
+            <div className="bg-red-700 p-1 rounded-lg shrink-0 hidden sm:block">
+              <svg width="36" height="28" viewBox="0 0 72 56" fill="none" className="block">
+                {/* Marx (links) — Silhouette mit Bart und Haar */}
+                <ellipse cx="18" cy="16" rx="9" ry="10" fill="#fca5a5" />
+                {/* Marx Haare */}
+                <path d="M9,14 Q9,6 18,5 Q27,6 27,14 Q25,10 18,10 Q11,10 9,14Z" fill="#7f1d1d" />
+                {/* Marx Bart */}
+                <path d="M12,20 Q14,18 18,18 Q22,18 24,20 Q23,26 18,28 Q13,26 12,20Z" fill="#7f1d1d" />
+                {/* Marx Augen */}
+                <circle cx="15" cy="14" r="1" fill="#1a1a1a" />
+                <circle cx="21" cy="14" r="1" fill="#1a1a1a" />
+                {/* Lenin (rechts) — Silhouette mit Spitzbart */}
+                <ellipse cx="48" cy="16" rx="9" ry="10" fill="#fca5a5" />
+                {/* Lenin Haare (Glatze mit Seiten) */}
+                <path d="M39,14 Q40,9 44,8 L44,12 Q42,12 39,14Z" fill="#7f1d1d" />
+                <path d="M57,14 Q56,9 52,8 L52,12 Q54,12 57,14Z" fill="#7f1d1d" />
+                {/* Lenin Spitzbart */}
+                <path d="M44,20 Q46,19 48,19 Q50,19 52,20 Q50,24 48,26 Q46,24 44,20Z" fill="#7f1d1d" />
+                {/* Lenin Augen */}
+                <circle cx="45" cy="14" r="1" fill="#1a1a1a" />
+                <circle cx="51" cy="14" r="1" fill="#1a1a1a" />
+                {/* Roter Stern zwischen beiden */}
+                <polygon points="33,6 34.5,10 38.5,10 35.5,12.5 36.5,16.5 33,14 29.5,16.5 30.5,12.5 27.5,10 31.5,10" fill="#fbbf24" />
+                {/* Banner-Band unten */}
+                <rect x="0" y="38" width="72" height="14" rx="2" fill="#991b1b" />
+                <text x="36" y="49" textAnchor="middle" fill="#fbbf24" fontSize="8" fontWeight="bold" fontFamily="sans-serif">MARX ★ LENIN</text>
+              </svg>
+            </div>
+            <div className="bg-red-600 p-1.5 rounded-lg sm:hidden">
               <Newspaper className="w-6 h-6 text-white" />
             </div>
             <div className="flex flex-col leading-tight">
