@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Flame, Newspaper } from "lucide-react";
 import { fetchArticles } from "../lib/api";
 import HeroBanner from "../components/HeroBanner";
+import BreakingNews from "../components/BreakingNews";
+import TrendingTopics from "../components/TrendingTopics";
 import HeroArticle from "../components/HeroArticle";
 import ArticleCard from "../components/ArticleCard";
 import SectionDivider from "../components/SectionDivider";
@@ -36,6 +38,12 @@ export default function HomePage() {
     <div>
       {/* Dekoratives Hero-Banner */}
       <HeroBanner />
+
+      {/* Breaking News */}
+      <BreakingNews />
+
+      {/* Trending Topics */}
+      <TrendingTopics />
 
       {/* Top-Artikel */}
       {heroArticles.length > 0 && (
