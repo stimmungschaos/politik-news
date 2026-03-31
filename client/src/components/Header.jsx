@@ -210,11 +210,11 @@ export default function Header() {
         <div className="flex items-center justify-between gap-4">
           <Link to="/" className="flex items-center gap-2.5 shrink-0">
             {/* Marx-Engels-Lenin Banner */}
-            <div className="bg-red-700 p-1.5 rounded-lg shrink-0 hidden sm:block">
+            <div className="bg-amber-50 p-1 rounded-lg shrink-0 hidden sm:block border border-amber-200/50">
               <img
                 src="https://upload.wikimedia.org/wikipedia/commons/f/f7/Marx_%2B_Engels_%2B_Lenin_.svg"
                 alt="Marx, Engels, Lenin"
-                className="h-8 w-auto brightness-200 invert"
+                className="h-12 w-auto"
               />
             </div>
             <div className="bg-red-600 p-1.5 rounded-lg sm:hidden">
