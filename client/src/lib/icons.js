@@ -65,7 +65,6 @@ export const FLAGS = [
   { name: "Palästina", type: "palestine", colors: ["#000000", "#FFFFFF", "#007A3D", "#CE1126"] },
   { name: "Vietnam", type: "star", colors: ["#DA251D", "#FFCD00"] },
   { name: "Venezuela", type: "3stripe", colors: ["#FFCC00", "#00247D", "#CF142B"] },
-  { name: "DVRK", type: "dprk" },
   { name: "Nicaragua", type: "3stripe", colors: ["#0067C6", "#FFFFFF", "#0067C6"] },
   { name: "Laos", type: "laos" },
   { name: "China", type: "china" },
@@ -76,9 +75,7 @@ export const FLAGS = [
 // Roter Stern, Hammer & Sichel etc.
 // ─────────────────────────────────────────────
 export const POLITICAL_SYMBOLS = [
-  "red-star",
-  "hammer-sickle",
-];
+  "red-star",];
 
 // ─────────────────────────────────────────────
 // KATEGORIEN

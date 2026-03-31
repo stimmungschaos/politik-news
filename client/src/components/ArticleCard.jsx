@@ -1,6 +1,8 @@
-import { ExternalLink, Clock } from "lucide-react";
+import { ExternalLink, Clock, Bookmark, BookmarkCheck } from "lucide-react";
+import { useState } from "react";
 import { getCategoryMeta } from "../lib/categories";
 import { getSourceMeta } from "../lib/sources";
+import { addBookmark, removeBookmark, isBookmarked } from "../lib/bookmarks";
 
 export default function ArticleCard({ article }) {
   const cat = getCategoryMeta(article.category);
@@ -11,6 +13,19 @@ export default function ArticleCard({ article }) {
     month: "short",
     year: "numeric",
   });
+  const [saved, setSaved] = useState(() => isBookmarked(article.id));
+
+  function toggleBookmark(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (saved) {
+      removeBookmark(article.id);
+      setSaved(false);
+    } else {
+      addBookmark(article);
+      setSaved(true);
+    }
+  }
 
   return (
     <article className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden hover:border-gray-500 transition-colors group">
@@ -52,15 +67,24 @@ export default function ArticleCard({ article }) {
             <Clock className="w-3 h-3" />
             {date}
           </span>
-          <a
-            href={article.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 text-sm text-red-400 hover:text-red-300 transition-colors"
-          >
-            Zum Artikel
-            <ExternalLink className="w-3.5 h-3.5" />
-          </a>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggleBookmark}
+              className={`p-1 rounded transition-colors ${saved ? "text-yellow-400" : "text-gray-500 hover:text-yellow-400"}`}
+              title={saved ? "Lesezeichen entfernen" : "Lesezeichen setzen"}
+            >
+              {saved ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
+            </button>
+            <a
+              href={article.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-sm text-red-400 hover:text-red-300 transition-colors"
+            >
+              Zum Artikel
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+          </div>
         </div>
       </div>
     </article>
