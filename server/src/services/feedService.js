@@ -20,13 +20,10 @@ const parser = new Parser({
 
 /**
  * Versucht ein Bild aus verschiedenen RSS-Feldern zu extrahieren.
- * Prüft: enclosure, media:content, media:thumbnail, und <img> im HTML-Content.
  */
 function extractImageUrl(item) {
-  // 1. Enclosure (Standard-RSS)
   if (item.enclosure?.url) return item.enclosure.url;
 
-  // 2. media:content (häufig bei Spiegel, Tagesschau etc.)
   if (item.mediaContent) {
     const media = Array.isArray(item.mediaContent) ? item.mediaContent : [item.mediaContent];
     for (const m of media) {
@@ -35,13 +32,11 @@ function extractImageUrl(item) {
     }
   }
 
-  // 3. media:thumbnail
   if (item.mediaThumbnail) {
     const url = item.mediaThumbnail.$?.url || item.mediaThumbnail.url;
     if (url) return url;
   }
 
-  // 4. media:group > media:content
   if (item.mediaGroup?.["media:content"]) {
     const content = item.mediaGroup["media:content"];
     const media = Array.isArray(content) ? content : [content];
@@ -51,7 +46,6 @@ function extractImageUrl(item) {
     }
   }
 
-  // 5. <img> Tag im HTML-Content extrahieren (inkl. content:encoded für Tagesschau etc.)
   const htmlSources = [
     item.contentEncoded,
     item["content:encoded"],
@@ -69,11 +63,9 @@ function extractImageUrl(item) {
 
 /**
  * Fallback: Holt das og:image von der Artikelseite selbst.
- * Nur für Quellen die kein Bild im RSS-Feed haben (z.B. Perspektive Online).
  */
 async function fetchOgImage(url) {
   try {
-    console.log(`  [OG-Image] Fetching: ${url}`);
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 8000);
     const res = await fetch(url, {
@@ -81,20 +73,13 @@ async function fetchOgImage(url) {
       headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
     });
     clearTimeout(timeout);
-    console.log(`  [OG-Image] Status: ${res.status}`);
-    if (!res.ok) { console.log(`  [OG-Image] FAIL: HTTP ${res.status}`); return null; }
+    if (!res.ok) return null;
     const html = await res.text();
-    console.log(`  [OG-Image] HTML length: ${html.length}`);
-    // Suche die meta-Zeile mit og:image und extrahiere die URL
     const ogLine = html.match(/<meta[^>]*og:image[^>]*>/i)?.[0];
-    console.log(`  [OG-Image] og:image line: ${ogLine ? ogLine.slice(0, 120) : "NOT FOUND"}`);
     if (!ogLine) return null;
     const contentMatch = ogLine.match(/content=["']([^"']+)["']/i);
-    const result = contentMatch?.[1] || null;
-    console.log(`  [OG-Image] Result: ${result || "NONE"}`);
-    return result;
-  } catch (err) {
-    console.log(`  [OG-Image] ERROR: ${err.message}`);
+    return contentMatch?.[1] || null;
+  } catch {
     return null;
   }
 }
@@ -125,18 +110,13 @@ export async function fetchAllFeeds() {
       console.log(`Fetching: ${source.name}...`);
       const feed = await parser.parseURL(source.url);
 
-      console.log(`  ${feed.items.length} items in feed`);
       for (const item of feed.items.slice(0, 20)) {
         const { summary, aiGenerated } = await createSummary(item);
-
         const category = categorizeArticle(item, source.categories);
 
         let imageUrl = extractImageUrl(item);
-        console.log(`  [${source.name}] "${(item.title || "").slice(0, 50)}" — RSS-Image: ${imageUrl ? "YES" : "NO"}`);
-        // Fallback: OG-Image von der Artikelseite holen
         if (!imageUrl && item.link) {
           imageUrl = await fetchOgImage(item.link);
-          console.log(`  [${source.name}] OG-Fallback: ${imageUrl ? "YES ✓" : "FAILED ✗"}`);
         }
 
         const result = insertArticle({
