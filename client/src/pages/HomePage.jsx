@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
+import { Flame, Newspaper } from "lucide-react";
 import { fetchArticles } from "../lib/api";
+import HeroBanner from "../components/HeroBanner";
 import HeroArticle from "../components/HeroArticle";
 import ArticleCard from "../components/ArticleCard";
+import SectionDivider from "../components/SectionDivider";
 
 export default function HomePage() {
   const [articles, setArticles] = useState([]);
@@ -31,19 +34,32 @@ export default function HomePage() {
 
   return (
     <div>
+      {/* Dekoratives Hero-Banner */}
+      <HeroBanner />
+
+      {/* Top-Artikel */}
       {heroArticles.length > 0 && (
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          {heroArticles.map((a) => (
-            <HeroArticle key={a.id} article={a} />
-          ))}
-        </section>
+        <>
+          <SectionDivider title="Top-Meldungen" icon={Flame} />
+          <section className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            {heroArticles.map((a) => (
+              <HeroArticle key={a.id} article={a} />
+            ))}
+          </section>
+        </>
       )}
 
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {restArticles.map((a) => (
-          <ArticleCard key={a.id} article={a} />
-        ))}
-      </section>
+      {/* Alle weiteren Artikel */}
+      {restArticles.length > 0 && (
+        <>
+          <SectionDivider title="Alle Nachrichten" icon={Newspaper} />
+          <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {restArticles.map((a) => (
+              <ArticleCard key={a.id} article={a} />
+            ))}
+          </section>
+        </>
+      )}
 
       {page < totalPages && (
         <div className="text-center mt-8">

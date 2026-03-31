@@ -1,1 +1,19 @@
 @import "tailwindcss";
+
+/* Laufschrift-Animation für Ticker */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+/* Subtiles Hintergrundmuster für die ganze Seite */
+body {
+  background-color: #030712;
+  background-image:
+    radial-gradient(ellipse at top, rgba(127, 29, 29, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(30, 58, 138, 0.05) 0%, transparent 50%);
+}
