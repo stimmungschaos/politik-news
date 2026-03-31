@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Search, Newspaper } from "lucide-react";
+import { Search, Newspaper, Flame, Shield, Vote, Scale, Megaphone, Rss } from "lucide-react";
 import { useState } from "react";
 import CATEGORIES from "../lib/categories";
 
@@ -17,13 +17,35 @@ export default function Header() {
 
   return (
     <header className="bg-gray-900 border-b border-gray-700 sticky top-0 z-50">
+      {/* Top accent bar with political icons */}
+      <div className="bg-gradient-to-r from-red-900/40 via-gray-900 to-red-900/40 px-4 py-1.5">
+        <div className="max-w-7xl mx-auto flex items-center justify-center gap-6 text-gray-500">
+          <Flame className="w-3.5 h-3.5" />
+          <Shield className="w-3.5 h-3.5" />
+          <Vote className="w-3.5 h-3.5" />
+          <span className="text-[10px] uppercase tracking-[0.3em] text-gray-400 font-medium">
+            Unabhängig informiert
+          </span>
+          <Scale className="w-3.5 h-3.5" />
+          <Megaphone className="w-3.5 h-3.5" />
+          <Rss className="w-3.5 h-3.5" />
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto px-4 py-3">
         <div className="flex items-center justify-between gap-4">
-          <Link to="/" className="flex items-center gap-2 shrink-0">
-            <Newspaper className="w-7 h-7 text-red-500" />
-            <span className="text-xl font-bold text-white">
-              Politik <span className="text-red-500">News</span>
-            </span>
+          <Link to="/" className="flex items-center gap-2.5 shrink-0">
+            <div className="bg-red-600 p-1.5 rounded-lg">
+              <Newspaper className="w-6 h-6 text-white" />
+            </div>
+            <div className="flex flex-col leading-tight">
+              <span className="text-xl font-bold text-white">
+                Politik <span className="text-red-500">News</span>
+              </span>
+              <span className="text-[10px] text-gray-500 tracking-wider uppercase">
+                Nachrichten-Aggregator
+              </span>
+            </div>
           </Link>
 
           <form onSubmit={handleSearch} className="flex-1 max-w-md">

@@ -16,5 +16,47 @@
     "url": "https://newsfeed.zeit.de/index",
     "categories": ["Innenpolitik", "Gesellschaft"],
     "logo": "zeit"
+  },
+  {
+    "name": "taz",
+    "url": "https://taz.de/!p4608;rss/",
+    "categories": ["Innenpolitik", "Gesellschaft", "Klima & Umwelt"],
+    "logo": "taz"
+  },
+  {
+    "name": "nd",
+    "url": "https://www.nd-aktuell.de/rss/alle-artikel",
+    "categories": ["Innenpolitik", "Gesellschaft", "Wirtschaft"],
+    "logo": "nd"
+  },
+  {
+    "name": "junge Welt",
+    "url": "https://www.jungewelt.de/rss/inhalt.rss",
+    "categories": ["Innenpolitik", "Außenpolitik", "Wirtschaft"],
+    "logo": "jungewelt"
+  },
+  {
+    "name": "der Freitag",
+    "url": "https://www.freitag.de/@@RSS",
+    "categories": ["Innenpolitik", "Gesellschaft", "Klima & Umwelt"],
+    "logo": "freitag"
+  },
+  {
+    "name": "Jacobin",
+    "url": "https://jacobin.de/feed",
+    "categories": ["Innenpolitik", "Wirtschaft", "Gesellschaft"],
+    "logo": "jacobin"
+  },
+  {
+    "name": "Telepolis",
+    "url": "https://www.telepolis.de/rss/news-atom.xml",
+    "categories": ["Innenpolitik", "Technologie", "Gesellschaft"],
+    "logo": "telepolis"
+  },
+  {
+    "name": "Deutschlandfunk",
+    "url": "https://www.deutschlandfunk.de/nachrichten-100.rss",
+    "categories": ["Innenpolitik", "Außenpolitik"],
+    "logo": "dlf"
   }
 ]

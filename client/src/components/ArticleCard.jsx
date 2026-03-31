@@ -1,9 +1,11 @@
 import { ExternalLink, Clock } from "lucide-react";
 import { getCategoryMeta } from "../lib/categories";
+import { getSourceMeta } from "../lib/sources";
 
 export default function ArticleCard({ article }) {
   const cat = getCategoryMeta(article.category);
   const Icon = cat.icon;
+  const src = getSourceMeta(article.source);
   const date = new Date(article.published).toLocaleDateString("de-DE", {
     day: "numeric",
     month: "short",
@@ -13,12 +15,18 @@ export default function ArticleCard({ article }) {
   return (
     <article className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden hover:border-gray-500 transition-colors group">
       {article.image_url && (
-        <img
-          src={article.image_url}
-          alt=""
-          className="w-full h-44 object-cover"
-          loading="lazy"
-        />
+        <div className="relative">
+          <img
+            src={article.image_url}
+            alt=""
+            className="w-full h-44 object-cover"
+            loading="lazy"
+          />
+          {/* Source badge overlay on image */}
+          <span className={`absolute top-2 right-2 text-xs font-bold px-2 py-1 rounded-md ${src.bg} ${src.color} border ${src.border} backdrop-blur-sm`}>
+            {src.abbr}
+          </span>
+        </div>
       )}
       <div className="p-4">
         <div className="flex items-center gap-2 mb-2">
@@ -26,7 +34,9 @@ export default function ArticleCard({ article }) {
             <Icon className="w-3 h-3" />
             {article.category}
           </span>
-          <span className="text-xs text-gray-500">{article.source}</span>
+          <span className={`inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full ${src.bg} ${src.color} border ${src.border}`}>
+            {article.source}
+          </span>
         </div>
 
         <h3 className="text-white font-semibold mb-2 line-clamp-2 group-hover:text-red-400 transition-colors">

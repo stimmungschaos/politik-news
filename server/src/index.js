@@ -31,8 +31,8 @@ fetchAllFeeds().then(() => {
   console.log("Initial feed fetch complete.");
 });
 
-// Schedule feed fetching every 15 minutes
-cron.schedule("*/15 * * * *", () => {
+// Schedule feed fetching every 5 minutes
+cron.schedule("*/5 * * * *", () => {
   console.log("Cron: Fetching feeds...");
   fetchAllFeeds();
 });
