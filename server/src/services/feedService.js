@@ -13,6 +13,7 @@ const parser = new Parser({
       ["media:content", "mediaContent", { keepArray: true }],
       ["media:thumbnail", "mediaThumbnail"],
       ["media:group", "mediaGroup"],
+      ["content:encoded", "contentEncoded"],
     ],
   },
 });
@@ -50,10 +51,18 @@ function extractImageUrl(item) {
     }
   }
 
-  // 5. <img> Tag im HTML-Content extrahieren
-  const html = item.content || item["content:encoded"] || item.description || "";
-  const imgMatch = html.match(/<img[^>]+src=["']([^"']+)["']/i);
-  if (imgMatch?.[1]) return imgMatch[1];
+  // 5. <img> Tag im HTML-Content extrahieren (inkl. content:encoded für Tagesschau etc.)
+  const htmlSources = [
+    item.contentEncoded,
+    item["content:encoded"],
+    item.content,
+    item.description,
+  ];
+  for (const html of htmlSources) {
+    if (!html) continue;
+    const imgMatch = html.match(/<img[^>]+src=["']([^"']+)["']/i);
+    if (imgMatch?.[1]) return imgMatch[1];
+  }
 
   return null;
 }

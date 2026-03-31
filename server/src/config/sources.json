@@ -58,5 +58,17 @@
     "url": "https://www.deutschlandfunk.de/nachrichten-100.rss",
     "categories": ["Innenpolitik", "Außenpolitik"],
     "logo": "dlf"
+  },
+  {
+    "name": "Tagesspiegel",
+    "url": "https://www.tagesspiegel.de/contentexport/feed/home",
+    "categories": ["Innenpolitik", "Gesellschaft", "Wirtschaft"],
+    "logo": "tagesspiegel"
+  },
+  {
+    "name": "ZDF heute",
+    "url": "https://www.zdf.de/rss/zdf/nachrichten",
+    "categories": ["Innenpolitik", "Außenpolitik", "Gesellschaft"],
+    "logo": "zdf"
   }
 ]

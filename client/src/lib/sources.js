@@ -11,6 +11,8 @@ const SOURCE_META = {
   "Jacobin": { abbr: "JA", color: "text-red-300", bg: "bg-red-700/20", border: "border-red-700/30" },
   "Telepolis": { abbr: "TP", color: "text-amber-300", bg: "bg-amber-500/20", border: "border-amber-500/30" },
   "Deutschlandfunk": { abbr: "DLF", color: "text-sky-300", bg: "bg-sky-500/20", border: "border-sky-500/30" },
+  "Tagesspiegel": { abbr: "TSP", color: "text-teal-300", bg: "bg-teal-500/20", border: "border-teal-500/30" },
+  "ZDF heute": { abbr: "ZDF", color: "text-orange-200", bg: "bg-orange-600/20", border: "border-orange-600/30" },
 };
 
 const DEFAULT_META = { abbr: "?", color: "text-gray-300", bg: "bg-gray-500/20", border: "border-gray-500/30" };
