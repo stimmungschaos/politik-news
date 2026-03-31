@@ -4,6 +4,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { insertArticle, upsertSource } from "../db/database.js";
 import { createSummary } from "./summaryService.js";
+import { categorizeArticle } from "./categoryService.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const parser = new Parser();
@@ -37,8 +38,7 @@ export async function fetchAllFeeds() {
       for (const item of feed.items.slice(0, 20)) {
         const { summary, aiGenerated } = await createSummary(item);
 
-        const category =
-          source.categories[Math.floor(Math.random() * source.categories.length)];
+        const category = categorizeArticle(item, source.categories);
 
         const result = insertArticle({
           title: item.title || "Ohne Titel",
