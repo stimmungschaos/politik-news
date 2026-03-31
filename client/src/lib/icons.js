@@ -2,7 +2,7 @@
  * === ICON-KONFIGURATION ===
  *
  * Alle Icons der Seite an einem Ort.
- * Verfügbare Icons: https://lucide.dev/icons
+ * Verfügbare Lucide-Icons: https://lucide.dev/icons
  */
 
 import {
@@ -29,7 +29,6 @@ import {
 
 // ─────────────────────────────────────────────
 // HEADER-AKZENTLEISTE
-// Die Icons links und rechts vom Slogan
 // ─────────────────────────────────────────────
 export const HEADER_ACCENT_ICONS = [
   { icon: Star },
@@ -50,16 +49,35 @@ export const HEADER_ACCENT_ICONS = [
 export const HEADER_SLOGAN = "DEINE LINKE NACHRICHTENSEITE";
 
 // ─────────────────────────────────────────────
-// SVG-FLAGGEN (inline, kein externer Dienst)
-// Kleine Flaggen-Emojis als SVG für die Akzentleiste
+// FLAGGEN — antiimperialistisches Spektrum
+//
+// Typen:
+//   "3stripe"     — 3 horizontale Streifen
+//   "star"        — einfarbig mit Stern (z.B. Vietnam)
+//   "palestine"   — 3 Streifen + Dreieck links
+//   "cuba"        — Kuba (5 Streifen + Dreieck)
+//   "dprk"        — Nordkorea (Streifen + roter Kreis)
+//   "nicaragua"   — Nicaragua (3 Streifen)
+//   "laos"        — Laos (3 Streifen + Kreis)
 // ─────────────────────────────────────────────
 export const FLAGS = [
-  { name: "Kuba", colors: ["#002590", "#CC0D2E", "#FFFFFF"] },
-  { name: "Palästina", colors: ["#000000", "#FFFFFF", "#007A3D", "#CE1126"] },
-  { name: "Vietnam", colors: ["#DA251D", "#FFCD00"] },
-  { name: "Venezuela", colors: ["#FFCC00", "#00247D", "#CF142B"] },
-  { name: "Bolivien", colors: ["#007934", "#FCE300", "#D52B1E"] },
-  { name: "Rojava", colors: ["#007A3D", "#FFCD00", "#CE1126"] },
+  { name: "Kuba", type: "cuba" },
+  { name: "Palästina", type: "palestine", colors: ["#000000", "#FFFFFF", "#007A3D", "#CE1126"] },
+  { name: "Vietnam", type: "star", colors: ["#DA251D", "#FFCD00"] },
+  { name: "Venezuela", type: "3stripe", colors: ["#FFCC00", "#00247D", "#CF142B"] },
+  { name: "DVRK", type: "dprk" },
+  { name: "Nicaragua", type: "3stripe", colors: ["#0067C6", "#FFFFFF", "#0067C6"] },
+  { name: "Laos", type: "laos" },
+  { name: "China", type: "china" },
+];
+
+// ─────────────────────────────────────────────
+// POLITISCHE SYMBOLE (SVG)
+// Roter Stern, Hammer & Sichel etc.
+// ─────────────────────────────────────────────
+export const POLITICAL_SYMBOLS = [
+  "red-star",
+  "hammer-sickle",
 ];
 
 // ─────────────────────────────────────────────

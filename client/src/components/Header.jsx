@@ -2,36 +2,129 @@ import { Link, useNavigate } from "react-router-dom";
 import { Search, Newspaper } from "lucide-react";
 import { useState } from "react";
 import CATEGORIES from "../lib/categories";
-import { HEADER_ACCENT_ICONS, HEADER_SLOGAN, FLAGS } from "../lib/icons";
+import { HEADER_ACCENT_ICONS, HEADER_SLOGAN, FLAGS, POLITICAL_SYMBOLS } from "../lib/icons";
 
-/** Kleine inline SVG-Flagge (3 horizontale Streifen oder custom) */
-function MiniFlag({ colors, title }) {
-  if (colors.length === 2) {
-    // Einfarbig mit Symbol (z.B. Vietnam: rot + gelber Stern)
-    return (
-      <svg width="18" height="12" viewBox="0 0 18 12" className="rounded-[2px] shrink-0" aria-label={title}>
-        <rect width="18" height="12" fill={colors[0]} />
-        <polygon points="9,2 10.2,5.2 13.5,5.2 10.8,7.2 11.7,10.5 9,8.5 6.3,10.5 7.2,7.2 4.5,5.2 7.8,5.2" fill={colors[1]} />
-      </svg>
-    );
-  }
-  if (colors.length === 4) {
-    // Palästina-Style: 3 Streifen + Dreieck
-    return (
-      <svg width="18" height="12" viewBox="0 0 18 12" className="rounded-[2px] shrink-0" aria-label={title}>
-        <rect y="0" width="18" height="4" fill={colors[0]} />
-        <rect y="4" width="18" height="4" fill={colors[1]} />
-        <rect y="8" width="18" height="4" fill={colors[2]} />
-        <polygon points="0,0 7,6 0,12" fill={colors[3]} />
-      </svg>
-    );
-  }
-  // 3 horizontale Streifen
-  const h = 12 / colors.length;
+/* ── Roter Stern (SVG) ── */
+function RedStar({ size = 14 }) {
   return (
-    <svg width="18" height="12" viewBox="0 0 18 12" className="rounded-[2px] shrink-0" aria-label={title}>
+    <svg width={size} height={size} viewBox="0 0 24 24" className="shrink-0">
+      <polygon
+        points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"
+        fill="#DC2626"
+        stroke="#991B1B"
+        strokeWidth="0.5"
+      />
+    </svg>
+  );
+}
+
+/* ── Hammer & Sichel (SVG) ── */
+function HammerSickle({ size = 14 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 100 100" className="shrink-0">
+      {/* Sichel */}
+      <path
+        d="M55,15 C35,15 20,30 20,50 C20,70 35,85 55,85 C45,85 35,73 35,58 C35,43 45,32 55,32 C50,28 48,22 55,15 Z"
+        fill="#DC2626"
+      />
+      {/* Hammer-Stiel */}
+      <rect x="52" y="30" width="4" height="45" rx="1" fill="#DC2626" transform="rotate(25, 54, 52)" />
+      {/* Hammer-Kopf */}
+      <rect x="42" y="22" width="22" height="10" rx="2" fill="#DC2626" transform="rotate(25, 54, 27)" />
+    </svg>
+  );
+}
+
+/* ── Mini-Flaggen als SVG ── */
+function MiniFlag({ flag }) {
+  const w = 18, h = 12;
+
+  if (flag.type === "cuba") {
+    return (
+      <svg width={w} height={h} viewBox="0 0 18 12" className="rounded-[2px] shrink-0" aria-label="Kuba">
+        <rect y="0" width="18" height="2.4" fill="#002590" />
+        <rect y="2.4" width="18" height="2.4" fill="#FFFFFF" />
+        <rect y="4.8" width="18" height="2.4" fill="#002590" />
+        <rect y="7.2" width="18" height="2.4" fill="#FFFFFF" />
+        <rect y="9.6" width="18" height="2.4" fill="#002590" />
+        <polygon points="0,0 8,6 0,12" fill="#CC0D2E" />
+        <polygon points="3,4.5 3.6,5.8 5,5.8 3.9,6.7 4.3,8 3,7.1 1.7,8 2.1,6.7 1,5.8 2.4,5.8" fill="#FFFFFF" />
+      </svg>
+    );
+  }
+
+  if (flag.type === "palestine") {
+    const [c1, c2, c3, c4] = flag.colors;
+    return (
+      <svg width={w} height={h} viewBox="0 0 18 12" className="rounded-[2px] shrink-0" aria-label="Palästina">
+        <rect y="0" width="18" height="4" fill={c1} />
+        <rect y="4" width="18" height="4" fill={c2} />
+        <rect y="8" width="18" height="4" fill={c3} />
+        <polygon points="0,0 7,6 0,12" fill={c4} />
+      </svg>
+    );
+  }
+
+  if (flag.type === "star") {
+    return (
+      <svg width={w} height={h} viewBox="0 0 18 12" className="rounded-[2px] shrink-0" aria-label={flag.name}>
+        <rect width="18" height="12" fill={flag.colors[0]} />
+        <polygon
+          points="9,2 10.2,5 13.2,5 10.8,7 11.5,10 9,8.2 6.5,10 7.2,7 4.8,5 7.8,5"
+          fill={flag.colors[1]}
+        />
+      </svg>
+    );
+  }
+
+  if (flag.type === "dprk") {
+    return (
+      <svg width={w} height={h} viewBox="0 0 18 12" className="rounded-[2px] shrink-0" aria-label="DVRK">
+        <rect y="0" width="18" height="1.5" fill="#024FA2" />
+        <rect y="1.5" width="18" height="0.5" fill="#FFFFFF" />
+        <rect y="2" width="18" height="8" fill="#ED1C27" />
+        <rect y="10" width="18" height="0.5" fill="#FFFFFF" />
+        <rect y="10.5" width="18" height="1.5" fill="#024FA2" />
+        <circle cx="5.5" cy="6" r="2.8" fill="#FFFFFF" />
+        <polygon
+          points="5.5,3.5 6.1,5 7.7,5 6.4,6 6.8,7.5 5.5,6.5 4.2,7.5 4.6,6 3.3,5 4.9,5"
+          fill="#ED1C27"
+        />
+      </svg>
+    );
+  }
+
+  if (flag.type === "laos") {
+    return (
+      <svg width={w} height={h} viewBox="0 0 18 12" className="rounded-[2px] shrink-0" aria-label="Laos">
+        <rect y="0" width="18" height="3" fill="#CE1126" />
+        <rect y="3" width="18" height="6" fill="#002868" />
+        <rect y="9" width="18" height="3" fill="#CE1126" />
+        <circle cx="9" cy="6" r="2.2" fill="#FFFFFF" />
+      </svg>
+    );
+  }
+
+  if (flag.type === "china") {
+    return (
+      <svg width={w} height={h} viewBox="0 0 18 12" className="rounded-[2px] shrink-0" aria-label="China">
+        <rect width="18" height="12" fill="#DE2910" />
+        <polygon points="3,1.5 3.7,3.5 5.8,3.5 4.1,4.8 4.7,6.8 3,5.5 1.3,6.8 1.9,4.8 0.2,3.5 2.3,3.5" fill="#FFDE00" />
+        <polygon points="7,0.8 7.3,1.5 8,1.5 7.4,2 7.6,2.7 7,2.2 6.4,2.7 6.6,2 6,1.5 6.7,1.5" fill="#FFDE00" />
+        <polygon points="8.5,2.3 8.8,3 9.5,3 8.9,3.5 9.1,4.2 8.5,3.7 7.9,4.2 8.1,3.5 7.5,3 8.2,3" fill="#FFDE00" />
+        <polygon points="8.5,4.5 8.8,5.2 9.5,5.2 8.9,5.7 9.1,6.4 8.5,5.9 7.9,6.4 8.1,5.7 7.5,5.2 8.2,5.2" fill="#FFDE00" />
+        <polygon points="7,6.2 7.3,6.9 8,6.9 7.4,7.4 7.6,8.1 7,7.6 6.4,8.1 6.6,7.4 6,6.9 6.7,6.9" fill="#FFDE00" />
+      </svg>
+    );
+  }
+
+  // Fallback: 3 horizontale Streifen
+  const colors = flag.colors || ["#ccc", "#999", "#666"];
+  const sh = h / colors.length;
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="rounded-[2px] shrink-0" aria-label={flag.name}>
       {colors.map((c, i) => (
-        <rect key={i} y={i * h} width="18" height={h} fill={c} />
+        <rect key={i} y={i * sh} width={w} height={sh} fill={c} />
       ))}
     </svg>
   );
@@ -51,17 +144,21 @@ export default function Header() {
 
   return (
     <header className="bg-gray-900 border-b border-gray-700 sticky top-0 z-50">
-      {/* Top accent bar — politische Icons, Flaggen, Slogan */}
+      {/* Top accent bar — Symbole, Flaggen, Slogan */}
       <div className="bg-gradient-to-r from-red-900/50 via-gray-900 to-red-900/50 px-4 py-1.5">
-        <div className="max-w-7xl mx-auto flex items-center justify-center gap-3 md:gap-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-center gap-2.5 md:gap-3.5 flex-wrap">
+          {/* Politische Symbole links */}
+          {POLITICAL_SYMBOLS.includes("red-star") && <RedStar />}
+          {POLITICAL_SYMBOLS.includes("hammer-sickle") && <HammerSickle />}
+
           {/* Icons links */}
-          {HEADER_ACCENT_ICONS.slice(0, 3).map(({ icon: Icon }, i) => (
+          {HEADER_ACCENT_ICONS.slice(0, 2).map(({ icon: Icon }, i) => (
             <Icon key={`l${i}`} className="w-3.5 h-3.5 text-red-500/60 hidden sm:block" />
           ))}
 
           {/* Flaggen links */}
-          {FLAGS.slice(0, 3).map((f) => (
-            <MiniFlag key={f.name} colors={f.colors} title={f.name} />
+          {FLAGS.slice(0, 4).map((f) => (
+            <MiniFlag key={f.name} flag={f} />
           ))}
 
           {/* Slogan */}
@@ -70,14 +167,18 @@ export default function Header() {
           </span>
 
           {/* Flaggen rechts */}
-          {FLAGS.slice(3).map((f) => (
-            <MiniFlag key={f.name} colors={f.colors} title={f.name} />
+          {FLAGS.slice(4).map((f) => (
+            <MiniFlag key={f.name} flag={f} />
           ))}
 
           {/* Icons rechts */}
-          {HEADER_ACCENT_ICONS.slice(3, 6).map(({ icon: Icon }, i) => (
+          {HEADER_ACCENT_ICONS.slice(2, 4).map(({ icon: Icon }, i) => (
             <Icon key={`r${i}`} className="w-3.5 h-3.5 text-red-500/60 hidden sm:block" />
           ))}
+
+          {/* Politische Symbole rechts */}
+          {POLITICAL_SYMBOLS.includes("hammer-sickle") && <HammerSickle />}
+          {POLITICAL_SYMBOLS.includes("red-star") && <RedStar />}
         </div>
       </div>
 
