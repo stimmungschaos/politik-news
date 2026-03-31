@@ -4,9 +4,9 @@ import { Link } from "react-router-dom";
 
 export default function Footer() {
   return (
-    <footer className="mt-16 border-t border-gray-800">
+    <footer className="mt-16" style={{ borderTop: "1px solid var(--border)" }}>
       {/* Deko-Linie oben */}
-      <div className="h-0.5 bg-gradient-to-r from-transparent via-red-600/40 to-transparent" />
+      <div className="h-0.5" style={{ background: `linear-gradient(to right, transparent, color-mix(in srgb, var(--accent) 40%, transparent), transparent)` }} />
 
       <div className="max-w-7xl mx-auto px-4 py-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

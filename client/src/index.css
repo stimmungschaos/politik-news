@@ -10,11 +10,12 @@
   animation: marquee 30s linear infinite;
 }
 
-/* Subtiles Hintergrundmuster für die ganze Seite */
+/* Hintergrund folgt dem Theme */
 body {
-  background-color: #030712;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   background-image:
-    radial-gradient(ellipse at top, rgba(127, 29, 29, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at top, color-mix(in srgb, var(--accent) 8%, transparent) 0%, transparent 50%),
     radial-gradient(ellipse at bottom right, rgba(30, 58, 138, 0.05) 0%, transparent 50%);
 }
 

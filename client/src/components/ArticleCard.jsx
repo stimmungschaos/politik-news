@@ -29,7 +29,7 @@ export default function ArticleCard({ article }) {
   }
 
   return (
-    <article className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden hover:border-gray-500 transition-colors group">
+    <article className="rounded-xl overflow-hidden transition-colors group" style={{ backgroundColor: "var(--bg-card)", border: "1px solid var(--border)" }}>
       {hasImage && (
         <div className="relative">
           <img

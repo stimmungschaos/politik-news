@@ -168,9 +168,9 @@ export default function Header() {
   }
 
   return (
-    <header className="bg-gray-900 border-b border-gray-700 sticky top-0 z-50">
+    <header className="sticky top-0 z-50" style={{ backgroundColor: "var(--bg-secondary)", borderBottom: "1px solid var(--border)" }}>
       {/* Top accent bar — Symbole, Flaggen, Slogan */}
-      <div className="bg-gradient-to-r from-red-900/50 via-gray-900 to-red-900/50 px-4 py-1.5">
+      <div className="px-4 py-1.5" style={{ background: `linear-gradient(to right, color-mix(in srgb, var(--accent) 30%, transparent), var(--bg-secondary), color-mix(in srgb, var(--accent) 30%, transparent))` }}>
         <div className="max-w-7xl mx-auto flex items-center justify-center gap-2.5 md:gap-3.5 flex-wrap">
           {/* Politische Symbole links */}
           {POLITICAL_SYMBOLS.includes("red-star") && <RedStar />}

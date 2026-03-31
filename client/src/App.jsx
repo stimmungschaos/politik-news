@@ -14,7 +14,7 @@ import SourcesPage from "./pages/SourcesPage";
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex flex-col">
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: "var(--bg-primary)", color: "var(--text-primary)" }}>
       <Header />
       <main className="max-w-7xl mx-auto px-4 py-6 flex-1 w-full">
         <Routes>
