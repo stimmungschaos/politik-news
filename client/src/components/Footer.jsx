@@ -1,4 +1,4 @@
-import { Newspaper, Github, Heart } from "lucide-react";
+import { Newspaper, ExternalLink, Heart } from "lucide-react";
 import CATEGORIES from "../lib/categories";
 import { Link } from "react-router-dom";
 
@@ -54,7 +54,7 @@ export default function Footer() {
             <ul className="space-y-1.5 text-sm text-gray-500">
               {/* === PLATZHALTER: Füge hier eigene Links hinzu === */}
               <li className="flex items-center gap-2">
-                <Github className="w-3.5 h-3.5" />
+                <ExternalLink className="w-3.5 h-3.5" />
                 <a
                   href="https://github.com/stimmungschaos/politik-news"
                   target="_blank"
