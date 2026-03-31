@@ -248,6 +248,7 @@ export function getDailyDigest(limit = 5) {
 
 // Stopwörter die beim Clustering ignoriert werden
 const CLUSTER_STOP = new Set([
+  // Grammatik
   "der", "die", "das", "den", "dem", "des", "ein", "eine", "einer", "einem", "einen",
   "und", "oder", "aber", "denn", "dass", "weil", "wenn", "als", "nach", "sich",
   "nicht", "auch", "noch", "schon", "nur", "mehr", "sehr", "wird", "hat", "haben",
@@ -260,6 +261,16 @@ const CLUSTER_STOP = new Set([
   "laut", "rund", "etwa", "fast", "wohl", "kaum", "ganz", "weiter", "jetzt",
   "prozent", "euro", "millionen", "milliarden", "jahr", "jahre", "jahren",
   "deutsche", "deutschen", "deutscher", "deutschland", "berlin",
+  // Nachrichtenfloskeln die zu viel matchen
+  "krieg", "kriege", "kriegs", "news", "heute", "tages",
+  "nahen", "osten", "mittleren", "landes", "regierung", "bundesregierung",
+  "warum", "kommentar", "analyse", "bericht", "interview", "liveblog",
+  "folgen", "krise", "konflikt", "politik", "land",
+  "frau", "mann", "kind", "kinder", "menschen", "leben", "welt",
+  "sagt", "sagen", "sagte", "sieht", "zeigt", "macht", "kommt",
+  "lässt", "steht", "heißt", "bleibt", "stellt", "nimmt",
+  "doch", "recht", "noch", "fall", "frage", "grund",
+  "kritik", "kritisiert", "fordert", "warnt", "droht",
 ]);
 
 /**
@@ -294,16 +305,19 @@ function similarity(wordsA, wordsB) {
     }
   }
 
-  if (sharedCount < 2) return 0; // mindestens 2 gemeinsame Wörter
+  if (sharedCount < 2) return 0; // mindestens 2 gemeinsame spezifische Wörter
 
   const totalWords = new Set([...wordsA, ...wordsB]).size;
+  // Jaccard: Anteil gemeinsamer Wörter am Gesamtvokabular
   const jaccardScore = sharedCount / totalWords;
-  const lengthBonus = sharedWeight / (sharedCount * 5); // normalisiert auf ~1
+  // Bonus für längere (= spezifischere) gemeinsame Wörter
+  const avgSharedLen = sharedWeight / sharedCount;
+  const lengthBonus = Math.min(avgSharedLen / 6, 2); // Wörter > 6 Zeichen geben vollen Bonus
 
   return jaccardScore * lengthBonus;
 }
 
-const SIMILARITY_THRESHOLD = 0.15; // Schwellenwert für "gleiche Story"
+const SIMILARITY_THRESHOLD = 0.2; // Schwellenwert für "gleiche Story" (strenger)
 
 export function findSimilarArticles(articleId) {
   const article = db.prepare("SELECT * FROM articles WHERE id = ?").get(articleId);
