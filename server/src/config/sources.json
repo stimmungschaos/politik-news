@@ -25,13 +25,13 @@
   },
   {
     "name": "nd",
-    "url": "https://www.nd-aktuell.de/rss/alle-artikel",
+    "url": "https://www.nd-aktuell.de/rss/aktuell.php",
     "categories": ["Innenpolitik", "Gesellschaft", "Wirtschaft"],
     "logo": "nd"
   },
   {
     "name": "junge Welt",
-    "url": "https://www.jungewelt.de/rss/inhalt.rss",
+    "url": "https://www.jungewelt.de/feeds/newsticker.rss",
     "categories": ["Innenpolitik", "Außenpolitik", "Wirtschaft"],
     "logo": "jungewelt"
   },
@@ -43,7 +43,7 @@
   },
   {
     "name": "Jacobin",
-    "url": "https://jacobin.de/feed",
+    "url": "https://jacobin.de/rss",
     "categories": ["Innenpolitik", "Wirtschaft", "Gesellschaft"],
     "logo": "jacobin"
   },
