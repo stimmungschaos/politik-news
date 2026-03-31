@@ -58,3 +58,13 @@ export async function fetchStoryClusters(hours = 24) {
 export async function fetchSimilarArticles(id) {
   return safeFetch(`${BASE}/trending/similar/${id}`, []);
 }
+
+export async function refreshFeeds() {
+  try {
+    const res = await fetch(`${BASE}/refresh`, { method: "POST" });
+    if (!res.ok) return { status: "error" };
+    return res.json();
+  } catch {
+    return { status: "error" };
+  }
+}

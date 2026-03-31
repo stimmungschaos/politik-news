@@ -1,8 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Search, Newspaper, Layers, BarChart3, Bookmark as BookmarkIcon } from "lucide-react";
+import { Search, Newspaper, Layers, BarChart3, Bookmark as BookmarkIcon, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import CATEGORIES from "../lib/categories";
 import { HEADER_ACCENT_ICONS, HEADER_SLOGAN, FLAGS, POLITICAL_SYMBOLS } from "../lib/icons";
+import { refreshFeeds } from "../lib/api";
 
 /* ── Roter Stern (SVG) ── */
 function RedStar({ size = 14 }) {
@@ -132,7 +133,30 @@ function MiniFlag({ flag }) {
 
 export default function Header() {
   const [query, setQuery] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshResult, setRefreshResult] = useState(null);
   const navigate = useNavigate();
+
+  async function handleRefresh() {
+    if (refreshing) return;
+    setRefreshing(true);
+    setRefreshResult(null);
+    const result = await refreshFeeds();
+    setRefreshing(false);
+    if (result.status === "ok") {
+      setRefreshResult(`+${result.newArticles} neue Artikel`);
+      setTimeout(() => {
+        setRefreshResult(null);
+        window.location.reload();
+      }, 1500);
+    } else if (result.status === "already_running") {
+      setRefreshResult("Läuft bereits...");
+      setTimeout(() => setRefreshResult(null), 2000);
+    } else {
+      setRefreshResult("Fehler!");
+      setTimeout(() => setRefreshResult(null), 2000);
+    }
+  }
 
   function handleSearch(e) {
     e.preventDefault();
@@ -210,6 +234,24 @@ export default function Header() {
               />
             </div>
           </form>
+
+          {/* Reload Button */}
+          <div className="relative shrink-0">
+            <button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="flex items-center gap-1.5 px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-gray-300 hover:text-white hover:border-red-500 transition-colors text-sm disabled:opacity-50"
+              title="Feeds neu laden"
+            >
+              <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
+              <span className="hidden md:inline">{refreshing ? "Lädt..." : "Refresh"}</span>
+            </button>
+            {refreshResult && (
+              <span className="absolute top-full right-0 mt-1 text-[10px] text-green-400 bg-gray-800 border border-gray-700 rounded px-2 py-0.5 whitespace-nowrap z-50">
+                {refreshResult}
+              </span>
+            )}
+          </div>
         </div>
 
         <nav className="flex gap-1 mt-3 overflow-x-auto pb-1">

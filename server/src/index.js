@@ -25,6 +25,21 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
+// Manueller Feed-Refresh
+let refreshing = false;
+app.post("/api/refresh", async (req, res) => {
+  if (refreshing) return res.json({ status: "already_running" });
+  refreshing = true;
+  try {
+    const count = await fetchAllFeeds();
+    res.json({ status: "ok", newArticles: count });
+  } catch (err) {
+    res.json({ status: "error", message: err.message });
+  } finally {
+    refreshing = false;
+  }
+});
+
 // Sync sources from config to DB on startup
 syncSourcesToDb();
 
