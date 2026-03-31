@@ -13,9 +13,12 @@ export default function SourcesPage() {
   const [error, setError] = useState("");
 
   // Login
-  const [password, setPassword] = useState(() => sessionStorage.getItem("admin-pw") || "");
-  const [loggedIn, setLoggedIn] = useState(() => !!sessionStorage.getItem("admin-pw"));
-  const [loginInput, setLoginInput] = useState("");
+  const [credentials, setCredentials] = useState(() => {
+    const saved = sessionStorage.getItem("admin-creds");
+    return saved ? JSON.parse(saved) : null;
+  });
+  const [loggedIn, setLoggedIn] = useState(() => !!sessionStorage.getItem("admin-creds"));
+  const [loginForm, setLoginForm] = useState({ username: "", password: "" });
   const [loginError, setLoginError] = useState("");
 
   useEffect(() => {
@@ -27,9 +30,10 @@ export default function SourcesPage() {
 
   function handleLogin(e) {
     e.preventDefault();
-    if (!loginInput.trim()) return;
-    sessionStorage.setItem("admin-pw", loginInput.trim());
-    setPassword(loginInput.trim());
+    if (!loginForm.username.trim() || !loginForm.password.trim()) return;
+    const creds = { username: loginForm.username.trim(), password: loginForm.password.trim() };
+    sessionStorage.setItem("admin-creds", JSON.stringify(creds));
+    setCredentials(creds);
     setLoggedIn(true);
     setLoginError("");
   }
@@ -56,13 +60,13 @@ export default function SourcesPage() {
     }
     const result = await addSource(
       { name: form.name.trim(), url: form.url.trim(), categories: form.categories },
-      password
+      credentials
     );
     if (result.error) {
       if (result.error === "unauthorized") {
         setError("Falsches Passwort.");
         setLoggedIn(false);
-        sessionStorage.removeItem("admin-pw");
+        sessionStorage.removeItem("admin-creds");
       } else if (result.error === "source already exists") {
         setError("Diese Quelle existiert bereits.");
       } else {
@@ -81,10 +85,10 @@ export default function SourcesPage() {
   }
 
   async function handleDelete(name) {
-    const result = await deleteSource(name, password);
+    const result = await deleteSource(name, credentials);
     if (result.error === "unauthorized") {
       setLoggedIn(false);
-      sessionStorage.removeItem("admin-pw");
+      sessionStorage.removeItem("admin-creds");
       return;
     }
     if (result.sources) {
@@ -113,12 +117,19 @@ export default function SourcesPage() {
           </p>
           <form onSubmit={handleLogin} className="space-y-3">
             <input
-              type="password"
-              value={loginInput}
-              onChange={(e) => setLoginInput(e.target.value)}
-              placeholder="Passwort"
+              type="text"
+              value={loginForm.username}
+              onChange={(e) => setLoginForm({ ...loginForm, username: e.target.value })}
+              placeholder="Benutzername"
               className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm focus:outline-none focus:border-red-500"
               autoFocus
+            />
+            <input
+              type="password"
+              value={loginForm.password}
+              onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+              placeholder="Passwort"
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white text-sm focus:outline-none focus:border-red-500"
             />
             {loginError && <p className="text-red-400 text-sm">{loginError}</p>}
             <button
