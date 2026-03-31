@@ -42,16 +42,10 @@
     "logo": "freitag"
   },
   {
-    "name": "Jacobin",
-    "url": "https://jacobin.de/rss",
-    "categories": ["Innenpolitik", "Wirtschaft", "Gesellschaft"],
-    "logo": "jacobin"
-  },
-  {
-    "name": "Telepolis",
-    "url": "https://www.telepolis.de/rss/news-atom.xml",
-    "categories": ["Innenpolitik", "Technologie", "Gesellschaft"],
-    "logo": "telepolis"
+    "name": "Perspektive Online",
+    "url": "https://perspektive-online.net/feed/",
+    "categories": ["Innenpolitik", "Gesellschaft", "Wirtschaft"],
+    "logo": "perspektive"
   },
   {
     "name": "Deutschlandfunk",

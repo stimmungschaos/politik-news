@@ -1,7 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Search, Newspaper, Flame, Shield, Vote, Scale, Megaphone, Rss } from "lucide-react";
+import { Search, Newspaper } from "lucide-react";
 import { useState } from "react";
 import CATEGORIES from "../lib/categories";
+import { HEADER_ACCENT_ICONS } from "../lib/icons";
 
 export default function Header() {
   const [query, setQuery] = useState("");
@@ -20,15 +21,15 @@ export default function Header() {
       {/* Top accent bar with political icons */}
       <div className="bg-gradient-to-r from-red-900/40 via-gray-900 to-red-900/40 px-4 py-1.5">
         <div className="max-w-7xl mx-auto flex items-center justify-center gap-6 text-gray-500">
-          <Flame className="w-3.5 h-3.5" />
-          <Shield className="w-3.5 h-3.5" />
-          <Vote className="w-3.5 h-3.5" />
+          {HEADER_ACCENT_ICONS.slice(0, 3).map(({ icon: Icon }, i) => (
+            <Icon key={i} className="w-3.5 h-3.5" />
+          ))}
           <span className="text-[10px] uppercase tracking-[0.3em] text-gray-400 font-medium">
             Unabhängig informiert
           </span>
-          <Scale className="w-3.5 h-3.5" />
-          <Megaphone className="w-3.5 h-3.5" />
-          <Rss className="w-3.5 h-3.5" />
+          {HEADER_ACCENT_ICONS.slice(3).map(({ icon: Icon }, i) => (
+            <Icon key={i} className="w-3.5 h-3.5" />
+          ))}
         </div>
       </div>
 
