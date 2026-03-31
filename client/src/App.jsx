@@ -4,6 +4,9 @@ import Footer from "./components/Footer";
 import HomePage from "./pages/HomePage";
 import CategoryPage from "./pages/CategoryPage";
 import SearchPage from "./pages/SearchPage";
+import StatsPage from "./pages/StatsPage";
+import StoryClustersPage from "./pages/StoryClustersPage";
+import BookmarksPage from "./pages/BookmarksPage";
 
 export default function App() {
   return (
@@ -14,6 +17,9 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/kategorie/:name" element={<CategoryPage />} />
           <Route path="/suche" element={<SearchPage />} />
+          <Route path="/dashboard" element={<StatsPage />} />
+          <Route path="/stories" element={<StoryClustersPage />} />
+          <Route path="/lesezeichen" element={<BookmarksPage />} />
         </Routes>
       </main>
       <Footer />
