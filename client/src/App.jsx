@@ -10,6 +10,7 @@ import BookmarksPage from "./pages/BookmarksPage";
 import TheoryPage from "./pages/TheoryPage";
 import QuotesPage from "./pages/QuotesPage";
 import HistoryPage from "./pages/HistoryPage";
+import SourcesPage from "./pages/SourcesPage";
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
           <Route path="/theorie" element={<TheoryPage />} />
           <Route path="/zitate" element={<QuotesPage />} />
           <Route path="/geschichte" element={<HistoryPage />} />
+          <Route path="/quellen" element={<SourcesPage />} />
         </Routes>
       </main>
       <Footer />

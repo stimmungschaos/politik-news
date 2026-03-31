@@ -68,3 +68,25 @@ export async function refreshFeeds() {
     return { status: "error" };
   }
 }
+
+export async function addSource({ name, url, categories, logo }) {
+  try {
+    const res = await fetch(`${BASE}/sources`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, url, categories, logo }),
+    });
+    return res.json();
+  } catch {
+    return { error: "failed" };
+  }
+}
+
+export async function deleteSource(name) {
+  try {
+    const res = await fetch(`${BASE}/sources/${encodeURIComponent(name)}`, { method: "DELETE" });
+    return res.json();
+  } catch {
+    return { error: "failed" };
+  }
+}

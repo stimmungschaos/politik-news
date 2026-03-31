@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   Menu, X, Layers, BarChart3, Bookmark, BookOpen, Quote,
-  Calendar, Home, Newspaper,
+  Calendar, Home, Newspaper, Rss,
 } from "lucide-react";
 import CATEGORIES from "../lib/categories";
 import ThemeSwitcher from "./ThemeSwitcher";
@@ -77,6 +77,7 @@ export default function SiteMenu() {
           <MenuLink to="/stories" icon={Layers} color="text-blue-400" label="Story-Vergleich" onClick={() => setOpen(false)} />
           <MenuLink to="/dashboard" icon={BarChart3} color="text-green-400" label="Dashboard" onClick={() => setOpen(false)} />
           <MenuLink to="/lesezeichen" icon={Bookmark} color="text-yellow-400" label="Merkliste" onClick={() => setOpen(false)} />
+          <MenuLink to="/quellen" icon={Rss} color="text-cyan-400" label="Quellen verwalten" onClick={() => setOpen(false)} />
 
           <div className="border-t border-gray-800 my-1" />
 
